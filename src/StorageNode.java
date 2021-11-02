@@ -24,20 +24,29 @@ public class StorageNode {
         this.requestPort = requestPort;
         this.fileName = fileName;
 
+        this.registerInDirectory();
+
         if(fileName != null)
             this.getDataFromFile();
         else
             this.getDataFromNodes();
-        
-        this.registerInDirectory();
+
+        this.startErrorDetection();
+
+
+
 
         Thread listener = new listenThread();
         listener.start();
     }
 
+    private void startErrorDetection() {
 
 
-    private class listenThread extends Thread{
+    }
+
+
+    private class listenThread extends Thread {
 
         @Override
         public void run() {
