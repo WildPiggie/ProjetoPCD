@@ -15,14 +15,14 @@ public class DataClient {
 
         //Interface
 
-        frame = new JFrame("Cliente");
+        frame = new JFrame("Client");
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         addFrameContent();
 
         //frame.setResizable(false);
         //frame.pack();
 
-        frame.setSize(700, 110);
+        frame.setSize(700, 200);
 
         frame.setVisible(true);
     }
@@ -34,31 +34,35 @@ public class DataClient {
         JPanel panel = new JPanel();
         panel.setLayout(new FlowLayout());
 
-        panel.add((new JLabel("Posição a consultar:")));
+        panel.add((new JLabel("Position a consultar:")));
 
         position = new JTextField(TF_COLUMNS);
         panel.add(position);
 
-        panel.add(new JLabel("Comprimento: "));
+        panel.add(new JLabel("Length: "));
 
         length = new JTextField(TF_COLUMNS);
         panel.add(length);
 
-        JButton search = new JButton("Consultar");
+        JButton search = new JButton("Search");
         search.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 //Fase 1
-                answer.setText("Posição: " + position.getText() + " Comprimento: " + length.getText());
+                answer.setText("Position: " + position.getText() + " Length: " + length.getText());
             }
         });
         panel.add(search);
 
         frame.add(panel);
 
-        answer = new JTextArea("Respostas aparecerão aqui...");
+        answer = new JTextArea("Answers will appear here...");
         answer.setEditable(false);
-        frame.add(answer, BorderLayout.SOUTH);
+        answer.setLineWrap(true);
+        JScrollPane scroll = new JScrollPane(answer);
+        scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        scroll.setSize(700, 100);
+        frame.add(scroll, BorderLayout.SOUTH);
     }
 
     public static void main(String[] args) {
