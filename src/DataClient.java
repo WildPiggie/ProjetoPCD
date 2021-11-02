@@ -3,6 +3,8 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import static java.lang.Integer.parseInt;
+
 public class DataClient {
 
     private static final int TF_COLUMNS = 10;
@@ -34,7 +36,7 @@ public class DataClient {
         JPanel panel = new JPanel();
         panel.setLayout(new FlowLayout());
 
-        panel.add((new JLabel("Position a consultar:")));
+        panel.add((new JLabel("Position:")));
 
         position = new JTextField(TF_COLUMNS);
         panel.add(position);
@@ -66,8 +68,10 @@ public class DataClient {
     }
 
     public static void main(String[] args) {
-        //args[0] = ip
-        //args[1] = porto
-        DataClient dt = new DataClient("123.123.123.123", 1);
+
+        if(args.length != 2)
+            throw new IllegalArgumentException("Invalid arguments!");
+
+        DataClient dt = new DataClient(args[0], parseInt(args[1]));
     }
 }
