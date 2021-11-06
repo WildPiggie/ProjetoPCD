@@ -5,6 +5,10 @@ import java.awt.event.ActionListener;
 
 import static java.lang.Integer.parseInt;
 
+/**
+ * Class for the DataClient interface. Allows for data queries on a certain Node.
+ * @author Olga Silva & Samuel Correia
+ */
 public class DataClient {
 
     private static final int TF_COLUMNS = 10;

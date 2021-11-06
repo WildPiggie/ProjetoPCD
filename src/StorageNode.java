@@ -5,12 +5,18 @@ import java.util.Scanner;
 
 import static java.lang.Integer.parseInt;
 
+/**
+ * Class for the Storage Nodes.
+ * @author Olga Silva & Samuel Correia
+ */
 public class StorageNode {
 
-    private String ipAddress;
-    private int directoryPort;
-    private int requestPort;
-    private String fileName;
+    private final String ipAddress;
+    private final int directoryPort;
+    private final int requestPort;
+    private final String fileName;
+
+    //colocadas a final, a não ser que futuramente seja necessário alterar nalguma parte do código
 
     private static final int DATALENGTH = 1000000;
 
@@ -33,25 +39,26 @@ public class StorageNode {
 
         this.startErrorDetection();
 
-
-
-
         Thread listener = new listenThread();
         listener.start();
     }
 
     private void startErrorDetection() {
 
-
+        //TODO
     }
 
-
+    /**
+     * Console reader. Checks for valid commands inputted into the console.
+     * Valid commands include:
+     * ERROR x : Where x is the target byte to be corrupted
+     */
     private class listenThread extends Thread {
 
         @Override
         public void run() {
             Scanner sc = new Scanner(System.in);
-            while(true){
+            while(true){ //isto pode precisar de um try catch (espera por coisas serem inseridas na consola)
                 //talvez fazer try catch do sc.next();
                 String command = sc.nextLine();
                 String[] args = command.split(" ");
@@ -72,7 +79,7 @@ public class StorageNode {
     }
 
     /**
-     * Uploads data from existing file or other StorageNodes.
+     * Uploads data from existing file.
      */
     public void getDataFromFile() {
 
@@ -95,6 +102,9 @@ public class StorageNode {
             }*/
     }
 
+    /**
+     * Downloads data from other StorageNodes
+     */
     public void getDataFromNodes(){
         //TODO
     }
@@ -111,9 +121,9 @@ public class StorageNode {
 
     /**
      * Answers the queries from remote clients.
-     * @return
+     * @return answer String provided
      */
-    public String anwerQuery() {
+    public String answerQuery() {
         // TODO
         return null;
     }
