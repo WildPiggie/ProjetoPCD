@@ -15,13 +15,13 @@ public class StorageNode {
     private final int directoryPort;
     private final int requestPort;
     private final String fileName;
-
     //colocadas a final, a não ser que futuramente seja necessário alterar nalguma parte do código
 
     private static final int DATALENGTH = 1000000;
 
     private CloudByte[] data;
-    //private ErrorDetectionThread[] thread; FASE 5
+    private ErrorDetectionThread[] errorDetectionThreads;
+    private static final int NUMERRORDETECTIONTHREADS = 2;
 
 
     public StorageNode(String ipAddress, int directoryPort, int requestPort, String fileName) {
@@ -43,9 +43,35 @@ public class StorageNode {
         listener.start();
     }
 
-    private void startErrorDetection() {
+    /**
+     * Gets CloudByte given its index.
+     * @param index
+     * @return CloudByte at the given index.
+     */
+    public synchronized CloudByte getElementFromData(int index) {
+        return data[index];
+    }
 
-        //TODO
+    /**
+     * Sets a CloudByte at the given index.
+     * @param index
+     * @param cloudByte
+     */
+    public synchronized void setElementData(int index, CloudByte cloudByte) {
+        this.data[index] = cloudByte;
+    }
+
+    /**
+     * Starts error detection threads.
+     */
+    private void startErrorDetection() {
+        errorDetectionThreads = new ErrorDetectionThread[NUMERRORDETECTIONTHREADS];
+        for(int i=0; i<NUMERRORDETECTIONTHREADS; i++) {
+            int startIndex = (DATALENGTH/NUMERRORDETECTIONTHREADS)*i;
+            System.out.println(startIndex);
+            errorDetectionThreads[i] = new ErrorDetectionThread(this, startIndex);
+            errorDetectionThreads[i].start();
+        }
     }
 
     /**
@@ -57,6 +83,7 @@ public class StorageNode {
 
         @Override
         public void run() {
+
             Scanner sc = new Scanner(System.in);
             while(true){ //isto pode precisar de um try catch (espera por coisas serem inseridas na consola)
                 //talvez fazer try catch do sc.next();
@@ -93,13 +120,7 @@ public class StorageNode {
                 System.err.println("Error reading file.");
             }
 
-            /* quem verifica isto são 2 processos ligeiros
-            for(byte b : fileContents) {
-                CloudByte cb = new CloudByte(b);
-                if(!cb.isParityOk()) {
-                    // existe problema nesta instância
-                }
-            }*/
+
     }
 
     /**
@@ -128,6 +149,28 @@ public class StorageNode {
         return null;
     }
 
+    /**
+     * Detects errors in bytes position through position+length.
+     * @param position
+     * @param length
+     */
+    public void errorDetection(int position, int length) {
+        for (int i = position; i < position + length; i++) {
+            CloudByte cb = data[i];
+            if (!cb.isParityOk()) {
+                System.err.println("Error detected in byte " + i + 1 + ".");
+                errorCorrection(i);
+            }
+        }
+    }
+
+    /**
+     * Corrects error in byte given its position.
+     * @param position
+     */
+    public void errorCorrection(int position) {
+        //TODO
+    }
 
     public static void main(String[] args) {
 

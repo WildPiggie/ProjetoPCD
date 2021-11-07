@@ -1,4 +1,13 @@
 Fazer a classe ErrorDetectionThread
-Meter mais gira as verificações de erros da listenThread
+Meter mais giras as verificações de erros da listenThread
 
 Esperar que os professores nos ensinem as cenas de sockets.
+
+Dúvidas:
+array de cloudByte OUUUUU outra estrutura de dados?
+
+Pq é q a Thread de deteção de erros n pode ser aninhada?
+O que temos OU uma classe aninhada ?
+As threads de deteção de erro percorrem como os bytes? Devemos ter um inteiro para indicar onde uma thread começa?
+
+Só dps de ter sido feita a correção é que query é apresentada ao cliente?

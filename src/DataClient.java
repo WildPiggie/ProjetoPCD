@@ -54,8 +54,11 @@ public class DataClient {
         search.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                //Fase 1
+                // Fase 1
                 answer.setText("Position: " + position.getText() + " Length: " + length.getText());
+
+                // Fase 3
+                // storageNode.detectError(position, length);
             }
         });
         panel.add(search);
