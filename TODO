@@ -3,8 +3,13 @@ Meter mais giras as verificações de erros da listenThread
 
 Esperar que os professores nos ensinem as cenas de sockets.
 
-Dúvidas:
+Dúvidas respondidas:
 array de cloudByte OUUUUU outra estrutura de dados? Hashmap
 Usar algo para associar a cada posição se: Está a ser lido ou alterado. (Bloqueante)
 
 Só dps de ter sido feita a correção é que query é apresentada ao cliente? Manda informação sem (hehe)
+
+Dúvidas:
+Quando fechamos a GUI a StorageNode tem uma eexceção e qdo terminamos na consola StorageNode o diretorio tem a mm exceção. Pq? Como? how? why? help
+
+Como fazer para funcionar nos 2 pcs? os ips n tao a querer colaborar
