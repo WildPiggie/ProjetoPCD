@@ -125,8 +125,6 @@ public class StorageNode {
             } catch (IOException e) {
                 System.err.println("Error reading file.");
             }
-
-
     }
 
     /**
@@ -155,7 +153,7 @@ public class StorageNode {
             out.println(message);
 
         } catch (ConnectException e) {
-            System.out.println("Erro ao estabelecer a ligação");
+            System.err.println("Erro ao estabelecer a ligação");
             e.printStackTrace();
         } catch (UnknownHostException e) {
             e.printStackTrace();
