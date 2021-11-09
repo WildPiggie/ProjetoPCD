@@ -4,10 +4,7 @@ Meter mais giras as verificações de erros da listenThread
 Esperar que os professores nos ensinem as cenas de sockets.
 
 Dúvidas:
-array de cloudByte OUUUUU outra estrutura de dados?
+array de cloudByte OUUUUU outra estrutura de dados? Hashmap
+Usar algo para associar a cada posição se: Está a ser lido ou alterado. (Bloqueante)
 
-Pq é q a Thread de deteção de erros n pode ser aninhada?
-O que temos OU uma classe aninhada ?
-As threads de deteção de erro percorrem como os bytes? Devemos ter um inteiro para indicar onde uma thread começa?
-
-Só dps de ter sido feita a correção é que query é apresentada ao cliente?
+Só dps de ter sido feita a correção é que query é apresentada ao cliente? Manda informação sem (hehe)

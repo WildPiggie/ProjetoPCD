@@ -1,5 +1,8 @@
 import java.io.File;
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.Socket;
+import java.net.UnknownHostException;
 import java.nio.file.Files;
 import java.util.Scanner;
 
@@ -11,10 +14,11 @@ import static java.lang.Integer.parseInt;
  */
 public class StorageNode {
 
-    private final String ipAddress;
+    private final String directoryIp;
     private final int directoryPort;
     private final int requestPort;
     private final String fileName;
+    private Socket socket;
     //colocadas a final, a não ser que futuramente seja necessário alterar nalguma parte do código
 
     private static final int DATALENGTH = 1000000;
@@ -25,7 +29,7 @@ public class StorageNode {
 
 
     public StorageNode(String ipAddress, int directoryPort, int requestPort, String fileName) {
-        this.ipAddress = ipAddress;
+        this.directoryIp = ipAddress;
         this.directoryPort = directoryPort;
         this.requestPort = requestPort;
         this.fileName = fileName;
@@ -48,7 +52,7 @@ public class StorageNode {
      * @param index
      * @return CloudByte at the given index.
      */
-    public synchronized CloudByte getElementFromData(int index) {
+    public CloudByte getElementFromData(int index) {
         return data[index];
     }
 
@@ -57,7 +61,7 @@ public class StorageNode {
      * @param index
      * @param cloudByte
      */
-    public synchronized void setElementData(int index, CloudByte cloudByte) {
+    public void setElementData(int index, CloudByte cloudByte) {
         this.data[index] = cloudByte;
     }
 
@@ -135,7 +139,18 @@ public class StorageNode {
      */
     public void registerInDirectory() {
 
-        String message = "INCS " + ipAddress + " 8081" ;
+
+        try {
+            String myIp = InetAddress.getLocalHost().getHostAddress();
+            InetAddress directoryIpAddr = InetAddress.getByName(directoryIp);
+
+            String message = "INSC " + myIp + " " + requestPort ;
+            socket = new Socket(directoryIpAddr, directoryPort);
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         // TODO
     }
