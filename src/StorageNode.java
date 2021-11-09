@@ -1,8 +1,6 @@
+import javax.xml.crypto.dsig.spec.C14NMethodParameterSpec;
 import java.io.*;
-import java.net.ConnectException;
-import java.net.InetAddress;
-import java.net.Socket;
-import java.net.UnknownHostException;
+import java.net.*;
 import java.nio.file.Files;
 import java.util.Scanner;
 
@@ -16,14 +14,14 @@ public class StorageNode {
 
     private final String directoryIp;
     private final int directoryPort;
-    private final int requestPort;
+    private final int nodePort;
     private final String fileName;
     private Socket socket;
     private BufferedReader in;
     private PrintWriter out;
     //colocadas a final, a não ser que futuramente seja necessário alterar nalguma parte do código
 
-    private static final int DATALENGTH = 1000000;
+    public static final int DATALENGTH = 1000000;
 
     private CloudByte[] data;
     private ErrorDetectionThread[] errorDetectionThreads;
@@ -33,7 +31,7 @@ public class StorageNode {
     public StorageNode(String ipAddress, int directoryPort, int requestPort, String fileName) {
         this.directoryIp = ipAddress;
         this.directoryPort = directoryPort;
-        this.requestPort = requestPort;
+        this.nodePort = requestPort;
         this.fileName = fileName;
 
         this.registerInDirectory();
@@ -47,6 +45,9 @@ public class StorageNode {
 
         Thread listener = new listenThread();
         listener.start();
+
+        startAcceptingClients();
+
     }
 
     /**
@@ -143,7 +144,7 @@ public class StorageNode {
             String myIp = InetAddress.getLocalHost().getHostAddress();
             InetAddress directoryIpAddr = InetAddress.getByName(directoryIp);
 
-            String message = "INSC " + myIp + " " + requestPort ;
+            String message = "INSC " + myIp + " " + nodePort;
             System.out.println(message);
             socket = new Socket(directoryIpAddr, directoryPort);
 
@@ -161,16 +162,6 @@ public class StorageNode {
             e.printStackTrace();
         }
 
-        // TODO
-    }
-
-    /**
-     * Answers the queries from remote clients.
-     * @return answer String provided
-     */
-    public String answerQuery() {
-        // TODO
-        return null;
     }
 
     /**
@@ -206,8 +197,78 @@ public class StorageNode {
         storageNode = (args.length == 4) ? new StorageNode(args[0], parseInt(args[1]), parseInt(args[2]), args[3]) :
                 new StorageNode(args[0], parseInt(args[1]), parseInt(args[2]), null);
 
+
         // TODO
 
+    }
+
+    /**
+     * Nested Class to deal with client queries.
+     */
+    private class DealWithClient extends Thread{
+        private BufferedReader in;
+        private ObjectOutputStream out;
+        private Socket socket;
+
+        public DealWithClient(Socket socket) throws IOException {
+            this.socket = socket;
+            in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            out = new ObjectOutputStream(socket.getOutputStream());
+        }
+
+        private void serve() throws IOException {
+            while (true) {
+                String str = in.readLine();
+
+                String args[] = str.split(" ");
+                int startIndex = parseInt(args[0])-1;
+                int length = parseInt(args[1]);
+
+                errorDetection(startIndex, length);
+
+                CloudByte[] requestedData = new CloudByte[length];
+                for(int i = 0; i < length; i++)
+                    requestedData[i] = data[i+startIndex];
+
+                out.writeObject(requestedData);
+            }
+        }
+
+        @Override
+        public void run() {
+            try {
+                serve();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                try {
+                    socket.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    /**
+     * Accepts queries from clients.
+     * @throws IOException
+     */
+    public void startAcceptingClients() {
+        try {
+            ServerSocket ss = new ServerSocket(nodePort);
+            try {
+                System.out.println("Waiting for clients...");
+                while(true) {
+                    Socket socket = ss.accept();
+                    new DealWithClient(socket).start();
+                }
+            } finally {
+                ss.close();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 }

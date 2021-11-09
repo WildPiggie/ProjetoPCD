@@ -6,7 +6,6 @@ public class ErrorDetectionThread extends Thread {
 
     private StorageNode storageNode;
     private int startIndex;
-    private static final int DATALENGTH = 1000000;
 
     public ErrorDetectionThread(StorageNode storageNode, int startIndex) {
         this.storageNode = storageNode;
@@ -22,7 +21,7 @@ public class ErrorDetectionThread extends Thread {
                 System.err.println("Error detected in byte " + i+1 + ".");
                 storageNode.errorCorrection(i);
             }
-            if(++i == DATALENGTH) i = 0;
+            if(++i == StorageNode.DATALENGTH) i = 0;
         }
     }
 }

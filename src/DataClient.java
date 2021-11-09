@@ -2,6 +2,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.*;
+import java.net.InetAddress;
+import java.net.Socket;
 
 import static java.lang.Integer.parseInt;
 
@@ -16,11 +19,19 @@ public class DataClient {
     private JTextField position;
     private JTextField length;
     private JTextArea answer;
+    private String nodeIpAddress;
+    private int nodePort;
+    private Socket socket;
+    private ObjectInputStream in;
+    private PrintWriter out;
 
-    public DataClient(String ipAddress, int port){
+    public DataClient(String nodeIpAddress, int nodePort){
+        this.nodeIpAddress = nodeIpAddress;
+        this.nodePort = nodePort;
+
+        connectToNode();
 
         //Interface
-
         frame = new JFrame("Client");
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         addFrameContent();
@@ -29,8 +40,17 @@ public class DataClient {
         //frame.pack();
 
         frame.setSize(700, 200);
-
         frame.setVisible(true);
+    }
+
+    private void connectToNode() {
+        try {
+            socket = new Socket(InetAddress.getByName(nodeIpAddress), nodePort);
+            out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())), true);
+            in = new ObjectInputStream(socket.getInputStream());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void addFrameContent() {
@@ -54,11 +74,41 @@ public class DataClient {
         search.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // Fase 1
-                answer.setText("Position: " + position.getText() + " Length: " + length.getText());
 
-                // Fase 3
-                // storageNode.detectError(position, length);
+                int numPosition = parseInt(position.getText());
+                int numLength = parseInt(length.getText());
+
+                if(numPosition <= 0 || numPosition > StorageNode.DATALENGTH) {
+                    JOptionPane.showMessageDialog(frame, "Invalid position!");
+                    return;
+                }
+                if(numLength < 0 || numPosition + numLength - 1 > StorageNode.DATALENGTH) {
+                    JOptionPane.showMessageDialog(frame, "Invalid position!");
+                    return;
+                }
+
+                // Fase 1
+                // answer.setText("Position: " + numPosition + " Length: " + numLength);
+
+                // Fase 5
+                String request = numPosition + " " + numLength;
+                out.println(request);
+
+                try {
+                    CloudByte[] data = (CloudByte[]) in.readObject();
+                    String output = "";
+                    for(int i = 0; i< data.length; i++) {
+                        output+= data[i].toString() + " ";
+                    }
+                    answer.setText(output);
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                } catch (ClassNotFoundException ex) {
+                    ex.printStackTrace();
+                }
+
+                // envia pedido pro node
+                // recebe os dados
             }
         });
         panel.add(search);
