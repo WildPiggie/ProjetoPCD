@@ -1,5 +1,5 @@
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
+import java.net.ConnectException;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -19,6 +19,8 @@ public class StorageNode {
     private final int requestPort;
     private final String fileName;
     private Socket socket;
+    private BufferedReader in;
+    private PrintWriter out;
     //colocadas a final, a não ser que futuramente seja necessário alterar nalguma parte do código
 
     private static final int DATALENGTH = 1000000;
@@ -139,13 +141,22 @@ public class StorageNode {
      */
     public void registerInDirectory() {
 
-
         try {
             String myIp = InetAddress.getLocalHost().getHostAddress();
             InetAddress directoryIpAddr = InetAddress.getByName(directoryIp);
 
             String message = "INSC " + myIp + " " + requestPort ;
+            System.out.println(message);
             socket = new Socket(directoryIpAddr, directoryPort);
+
+            out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())),true);
+            in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+
+            out.println(message);
+
+        } catch (ConnectException e) {
+            System.out.println("Erro ao estabelecer a ligação");
+            e.printStackTrace();
         } catch (UnknownHostException e) {
             e.printStackTrace();
         } catch (IOException e) {
