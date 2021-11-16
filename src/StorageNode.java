@@ -73,7 +73,6 @@ public class StorageNode {
         errorDetectionThreads = new ErrorDetectionThread[NUMERRORDETECTIONTHREADS];
         for(int i=0; i<NUMERRORDETECTIONTHREADS; i++) {
             int startIndex = (DATALENGTH/NUMERRORDETECTIONTHREADS)*i;
-            System.out.println(startIndex);
             errorDetectionThreads[i] = new ErrorDetectionThread(this, startIndex);
             errorDetectionThreads[i].start();
         }

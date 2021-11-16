@@ -14,7 +14,6 @@ Usar algo para associar a cada posição se: Está a ser lido ou alterado. (Bloq
 
 Só dps de ter sido feita a correção é que query é apresentada ao cliente? Manda informação sem (hehe)
 
-Dúvidas:
 Temos que colocar printstacktrace ou podemos por outra mensagem explicativa do erro
 
 Como fazer para funcionar nos 2 pcs? os ips n tao a querer colaborar
@@ -24,4 +23,6 @@ Deteção de erros em 2 sitios? A pesquisa do gui corrige o erro antes de mostra
 A POSIÇÃO Q O CLIENTE PERGUNTA (e é injetada) PODE SER 0? DO TP IGUAL AS POSICOES DE UM ARRAY????????????? -
 Usamos como se for um array, 0 a 999999
 
-- length = 100000 na pos = 0 n funciona
+Dúvidas:
+
+Qdo tentamos pesquisar por 100000 de length demora IMENSO tempo... na realidade nnc chega a vir .. why?

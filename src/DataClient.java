@@ -40,7 +40,8 @@ public class DataClient {
 
         //frame.setResizable(false);
         //frame.pack();
-
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        frame.setLocation(screenSize.width/2-frame.getWidth()/2, screenSize.height/2-frame.getHeight()/2);
         frame.setSize(700, 200);
         frame.setVisible(true);
     }
@@ -52,6 +53,7 @@ public class DataClient {
             in = new ObjectInputStream(socket.getInputStream());
         } catch (IOException e) {
             System.err.println("Error connecting to node while creating socket and/or streams.");
+            System.exit(1);
         }
     }
 
@@ -82,7 +84,7 @@ public class DataClient {
                     JOptionPane.showMessageDialog(frame, "Invalid position!");
                     return;
                 }
-                if(numLength <= 0 || numPosition + numLength >= StorageNode.DATALENGTH) {
+                if(numLength <= 0 || numPosition + numLength > StorageNode.DATALENGTH) {
                     JOptionPane.showMessageDialog(frame, "Invalid length!");
                     return;
                 }
