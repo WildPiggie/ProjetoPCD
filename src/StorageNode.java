@@ -41,7 +41,7 @@ public class StorageNode {
         else
             this.getDataFromNodes();
 
-        this.startErrorDetection();
+        // this.startErrorDetection(); - entra em loop
 
         Thread listener = new listenThread();
         listener.start();
@@ -101,7 +101,7 @@ public class StorageNode {
                         int position = parseInt(args[1]);
                         if (args[0].equals("ERROR") && position >= 0 && position < DATALENGTH) {
                             //System.out.println("Antes: " + data[position]);
-                            data[position].makeByteCorrupt();
+                            data[position - 1].makeByteCorrupt(); // pos-1 para que ao injetar o erro no byte 2 vá parar à pos 1 do array
                             System.out.println("Error injected in position " + position);
                             //System.out.println("Depois: " + data[position]);
                         } else System.err.println("Command not found.");
@@ -173,7 +173,8 @@ public class StorageNode {
         for (int i = position; i < position + length; i++) {
             CloudByte cb = data[i];
             if (!cb.isParityOk()) {
-                System.err.println("Error detected in byte " + i + 1 + ".");
+                int pos = i+1;
+                System.err.println("Error detected in byte " + pos + ".");
                 errorCorrection(i);
             }
         }

@@ -3,6 +3,11 @@ Meter mais giras as verificações de erros da listenThread
 
 Esperar que os professores nos ensinem as cenas de sockets.
 
+Problema: qdo tentas lançar o no sem o diretorio tar a correr ele n morre e vai sacar o ficheiro!
+- ao injetar o erro entrou num loop -> comentei a parte q chama as threads de deteção
+- nas msgs pra consola tirei o i+1 e passou a ser so i
+- data[position - 1].makeByteCorrupt(); // pos-1 para que ao injetar o erro no byte 2 vá parar à pos 1 do array -> na listenerThread
+
 Dúvidas respondidas:
 array de cloudByte OUUUUU outra estrutura de dados? Hashmap
 Usar algo para associar a cada posição se: Está a ser lido ou alterado. (Bloqueante)
@@ -13,3 +18,9 @@ Dúvidas:
 Quando fechamos a GUI a StorageNode tem uma eexceção e qdo terminamos na consola StorageNode o diretorio tem a mm exceção. Pq? Como? how? why? help
 
 Como fazer para funcionar nos 2 pcs? os ips n tao a querer colaborar
+
+Deteção de erros em 2 sitios?
+
+Como fazer q o cliente n rebente qdo se fecha no X da GUI?
+
+A POSIÇÃO Q O CLIENTE PERGUNTA (e é injetada) PODE SER 0? DO TP IGUAL AS POSICOES DE UM ARRAY?????????????
