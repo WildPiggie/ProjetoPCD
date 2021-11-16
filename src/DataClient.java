@@ -34,6 +34,8 @@ public class DataClient {
         //Interface
         frame = new JFrame("Client");
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+
+
         addFrameContent();
 
         //frame.setResizable(false);
@@ -49,7 +51,7 @@ public class DataClient {
             out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())), true);
             in = new ObjectInputStream(socket.getInputStream());
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("Error connecting to node while creating socket and/or streams.");
         }
     }
 
@@ -73,42 +75,28 @@ public class DataClient {
         JButton search = new JButton("Search");
         search.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(ActionEvent e) {
-
+            public void actionPerformed(ActionEvent a) {
                 int numPosition = parseInt(position.getText());
                 int numLength = parseInt(length.getText());
-
-                if(numPosition <= 0 || numPosition > StorageNode.DATALENGTH) {
+                if(numPosition < 0 || numPosition >= StorageNode.DATALENGTH) {
                     JOptionPane.showMessageDialog(frame, "Invalid position!");
                     return;
                 }
-                if(numLength < 0 || numPosition + numLength - 1 > StorageNode.DATALENGTH) {
-                    JOptionPane.showMessageDialog(frame, "Invalid position!");
+                if(numLength <= 0 || numPosition + numLength >= StorageNode.DATALENGTH) {
+                    JOptionPane.showMessageDialog(frame, "Invalid length!");
                     return;
                 }
-
-                // Fase 1
-                // answer.setText("Position: " + numPosition + " Length: " + numLength);
-
-                // Fase 5
                 String request = numPosition + " " + numLength;
                 out.println(request);
-
                 try {
                     CloudByte[] data = (CloudByte[]) in.readObject();
                     String output = "";
-                    for(int i = 0; i< data.length; i++) {
-                        output+= data[i].toString() + " ";
-                    }
+                    for(int i = 0; i < data.length; i++)
+                        output += data[i].toString() + " ";
                     answer.setText(output);
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                } catch (ClassNotFoundException ex) {
-                    ex.printStackTrace();
+                } catch (IOException | ClassNotFoundException e) {
+                    System.err.println("Error reading received object.");
                 }
-
-                // envia pedido pro node
-                // recebe os dados
             }
         });
         panel.add(search);

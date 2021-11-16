@@ -1,4 +1,3 @@
-import javax.xml.crypto.dsig.spec.C14NMethodParameterSpec;
 import java.io.*;
 import java.net.*;
 import java.nio.file.Files;
@@ -27,7 +26,6 @@ public class StorageNode {
     private ErrorDetectionThread[] errorDetectionThreads;
     private static final int NUMERRORDETECTIONTHREADS = 2;
 
-
     public StorageNode(String ipAddress, int directoryPort, int requestPort, String fileName) {
         this.directoryIp = ipAddress;
         this.directoryPort = directoryPort;
@@ -36,12 +34,12 @@ public class StorageNode {
 
         this.registerInDirectory();
 
-        if(fileName != null)
+        if(new File(fileName).isFile())
             this.getDataFromFile();
         else
             this.getDataFromNodes();
 
-        // this.startErrorDetection(); - entra em loop
+        this.startErrorDetection(); // entra em loop
 
         Thread listener = new listenThread();
         listener.start();
@@ -90,7 +88,6 @@ public class StorageNode {
 
         @Override
         public void run() {
-
             Scanner sc = new Scanner(System.in);
             while(true){ //isto pode precisar de um try catch (espera por coisas serem inseridas na consola)
                 //talvez fazer try catch do sc.next();
@@ -100,15 +97,13 @@ public class StorageNode {
                     try {
                         int position = parseInt(args[1]);
                         if (args[0].equals("ERROR") && position >= 0 && position < DATALENGTH) {
-                            //System.out.println("Antes: " + data[position]);
-                            data[position - 1].makeByteCorrupt(); // pos-1 para que ao injetar o erro no byte 2 vá parar à pos 1 do array
-                            System.out.println("Error injected in position " + position);
-                            //System.out.println("Depois: " + data[position]);
+                            CloudByte cb = data[position];
+                            cb.makeByteCorrupt();
+                            System.out.println("Error injected in position " + position + " : " + cb);
                         } else System.err.println("Command not found.");
                     } catch (NumberFormatException e) { System.err.println("Invalid command arguments."); }
                 } else System.err.println("Command not found.");
             }
-            //sc.close();
         }
     }
 
@@ -116,15 +111,16 @@ public class StorageNode {
      * Uploads data from existing file.
      */
     public void getDataFromFile() {
-
             try {
                 data = new CloudByte[DATALENGTH];
                 byte[] fileContents = Files.readAllBytes(new File(fileName).toPath());
-                for(int i=0; i<DATALENGTH; i++)
+                for(int i = 0; i < DATALENGTH; i++)
                     data[i] = new CloudByte(fileContents[i]);
                 System.out.println("Data uploaded from file.");
             } catch (IOException e) {
-                System.err.println("Error reading file.");
+                System.err.println("Error reading data from file.");
+                System.out.println("Attempting to get data from other nodes...");
+                getDataFromNodes();
             }
     }
 
@@ -133,13 +129,13 @@ public class StorageNode {
      */
     public void getDataFromNodes(){
         //TODO
+        //System.exit(1); em caso de erro
     }
 
     /**
      * Registers the StorageNode in the Directory.
      */
     public void registerInDirectory() {
-
         try {
             String myIp = InetAddress.getLocalHost().getHostAddress();
             InetAddress directoryIpAddr = InetAddress.getByName(directoryIp);
@@ -153,15 +149,15 @@ public class StorageNode {
 
             out.println(message);
 
-        } catch (ConnectException e) {
-            System.err.println("Erro ao estabelecer a ligação");
-            e.printStackTrace();
         } catch (UnknownHostException e) {
-            e.printStackTrace();
+            System.err.println("Error while establishing the connection to the directory.");
+            System.err.println("Couldn't register to directory. Ending.");
+            System.exit(1);
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("Error while creating the socket to the directory.");
+            System.err.println("Couldn't register to directory. Ending.");
+            System.exit(1);
         }
-
     }
 
     /**
@@ -173,8 +169,7 @@ public class StorageNode {
         for (int i = position; i < position + length; i++) {
             CloudByte cb = data[i];
             if (!cb.isParityOk()) {
-                int pos = i+1;
-                System.err.println("Error detected in byte " + pos + ".");
+                System.err.println("Error detected in byte " + i + ".");
                 errorCorrection(i);
             }
         }
@@ -189,18 +184,11 @@ public class StorageNode {
     }
 
     public static void main(String[] args) {
-
-        StorageNode storageNode;
-
         if(args.length < 3 || args.length > 4)
             throw new IllegalArgumentException("Invalid arguments!");
-
-        storageNode = (args.length == 4) ? new StorageNode(args[0], parseInt(args[1]), parseInt(args[2]), args[3]) :
+        StorageNode storageNode = (args.length == 4) ? new StorageNode(args[0], parseInt(args[1]), parseInt(args[2]), args[3]) :
                 new StorageNode(args[0], parseInt(args[1]), parseInt(args[2]), null);
-
-
         // TODO
-
     }
 
     /**
@@ -222,7 +210,7 @@ public class StorageNode {
                 String str = in.readLine();
 
                 String args[] = str.split(" ");
-                int startIndex = parseInt(args[0])-1;
+                int startIndex = parseInt(args[0]);
                 int length = parseInt(args[1]);
 
                 errorDetection(startIndex, length);
@@ -240,13 +228,7 @@ public class StorageNode {
             try {
                 serve();
             } catch (IOException e) {
-                e.printStackTrace();
-            } finally {
-                try {
-                    socket.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                System.err.println("Client disconnected unexpectedly.");
             }
         }
     }
@@ -262,13 +244,14 @@ public class StorageNode {
                 System.out.println("Waiting for clients...");
                 while(true) {
                     Socket socket = ss.accept();
+                    System.out.println("New client connection established.");
                     new DealWithClient(socket).start();
                 }
             } finally {
                 ss.close();
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("Error while opening the server socket to the directory.");
         }
     }
 

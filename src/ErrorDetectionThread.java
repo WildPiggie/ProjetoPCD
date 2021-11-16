@@ -17,6 +17,11 @@ public class ErrorDetectionThread extends Thread {
         int i = startIndex;
         while(!interrupted()) { // está infinito why n faz sentido
             CloudByte cb = storageNode.getElementFromData(i);
+            try {
+                sleep(1);
+            } catch (InterruptedException e) {
+                System.err.println("Error detection thread interrupted while sleeping.");
+            }
             if(!cb.isParityOk()) {
                 System.err.println("Error detected in byte " + i + ".");
                 storageNode.errorCorrection(i);
