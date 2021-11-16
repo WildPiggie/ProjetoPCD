@@ -1,7 +1,9 @@
 import java.io.*;
 import java.net.*;
 import java.nio.file.Files;
+import java.util.LinkedList;
 import java.util.Scanner;
+import java.util.concurrent.CountDownLatch;
 
 import static java.lang.Integer.parseInt;
 
@@ -13,6 +15,7 @@ public class StorageNode {
 
     private final String directoryIp;
     private final int directoryPort;
+    private String nodeIp;
     private final int nodePort;
     private final String fileName;
     private Socket socket;
@@ -21,6 +24,7 @@ public class StorageNode {
     //colocadas a final, a não ser que futuramente seja necessário alterar nalguma parte do código
 
     public static final int DATALENGTH = 1000000;
+    public static final int DEFAULTBLOCKLENGTH = 100;
 
     private CloudByte[] data;
     private ErrorDetectionThread[] errorDetectionThreads;
@@ -31,21 +35,19 @@ public class StorageNode {
         this.directoryPort = directoryPort;
         this.nodePort = requestPort;
         this.fileName = fileName;
-
-        this.registerInDirectory();
-
-        if(new File(fileName).isFile())
-            this.getDataFromFile();
-        else
-            this.getDataFromNodes();
-
-        this.startErrorDetection(); // entra em loop
-
-        Thread listener = new listenThread();
-        listener.start();
-
+        registerInDirectory();
+        getData();
+        startErrorDetection(); // entra em loop
+        new listenThread().start();
         startAcceptingClients();
+    }
 
+    private void getData(){
+        File file = new File(fileName);
+        if(file.isFile())
+            getDataFromFile(file);
+        else
+            getDataFromNodes();
     }
 
     /**
@@ -62,7 +64,7 @@ public class StorageNode {
      * @param index
      * @param cloudByte
      */
-    public void setElementData(int index, CloudByte cloudByte) {
+    void setElementData(int index, CloudByte cloudByte) {
         this.data[index] = cloudByte;
     }
 
@@ -109,10 +111,10 @@ public class StorageNode {
     /**
      * Uploads data from existing file.
      */
-    public void getDataFromFile() {
+    private void getDataFromFile(File file) {
             try {
                 data = new CloudByte[DATALENGTH];
-                byte[] fileContents = Files.readAllBytes(new File(fileName).toPath());
+                byte[] fileContents = Files.readAllBytes(file.toPath());
                 for(int i = 0; i < DATALENGTH; i++)
                     data[i] = new CloudByte(fileContents[i]);
                 System.out.println("Data uploaded from file.");
@@ -123,23 +125,77 @@ public class StorageNode {
             }
     }
 
+    private LinkedList<String> getNodes() throws IOException {
+        out.println("nodes");
+
+        LinkedList<String> nodes = new LinkedList();
+
+        while(true){
+            String line = in.readLine();
+            if(line.equals("end"))
+                break;
+            nodes.add(line);
+        }
+
+        return nodes;
+    }
+
     /**
      * Downloads data from other StorageNodes
      */
-    public void getDataFromNodes(){
+    private void getDataFromNodes(){
         //TODO
+
+        LinkedList<String> nodes = new LinkedList();
+
+        try {
+            nodes = getNodes();
+        } catch (IOException e) {
+            System.err.println("Couldn't acquire nodes to obtain data. Ending.");
+            System.exit(1);
+        }
+
+        int numberOfNodes = nodes.size();
+        int numberOfBlocks = DATALENGTH/DEFAULTBLOCKLENGTH;
+
+        SynchronizedList<ByteBlockRequest> list = new SynchronizedList(numberOfBlocks);
+        for(int i = 0; i<DATALENGTH; i+=DEFAULTBLOCKLENGTH) {
+            try {
+                list.put(new ByteBlockRequest(i, DEFAULTBLOCKLENGTH));
+            } catch (InterruptedException e) {
+                System.err.println("Interrupted while adding ByteBlockRequest to list. Ending.");
+                System.exit(1); //ATENÇÃO A ESTE SYSTEM EXIT.
+            }
+        }
+
+        CountDownLatch cdl = new CountDownLatch(numberOfBlocks);
+
+        for(String line : nodes){
+            String[] args = line.split(" ");
+            String ip = args[1];
+            int port = parseInt(args[2]);
+            if(!(ip.equals(nodeIp) && port == nodePort))
+                new ByteBlockRequesterThread(cdl, list, ip, port).start();
+        }
+
+        try {
+            cdl.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        //mecanismo para após o await? Usar thread pools?
         //System.exit(1); em caso de erro
     }
 
     /**
      * Registers the StorageNode in the Directory.
      */
-    public void registerInDirectory() {
+    private void registerInDirectory() {
         try {
             socket = new Socket(directoryIp, directoryPort);
-            String myIp = socket.getLocalAddress().getHostAddress();
-            String message = "INSC " + myIp + " " + nodePort;
-            System.out.println(message);
+            nodeIp = socket.getLocalAddress().getHostAddress();
+            String message = "INSC " + nodeIp + " " + nodePort;
 
             out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())),true);
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
@@ -162,7 +218,7 @@ public class StorageNode {
      * @param position
      * @param length
      */
-    public void errorDetection(int position, int length) {
+    private void errorDetection(int position, int length) {
         for (int i = position; i < position + length; i++) {
             CloudByte cb = data[i];
             if (!cb.isParityOk()) {
@@ -176,7 +232,7 @@ public class StorageNode {
      * Corrects error in byte given its position.
      * @param position
      */
-    public void errorCorrection(int position) {
+    void errorCorrection(int position) {
         //TODO
     }
 
@@ -189,28 +245,27 @@ public class StorageNode {
     }
 
     /**
-     * Nested Class to deal with client queries.
+     * Nested Class to deal with client queries and node queries.
      */
-    private class DealWithClient extends Thread{
-        private BufferedReader in;
+    private class DealWithRequests extends Thread{
+        private ObjectInputStream in;
         private ObjectOutputStream out;
         private Socket socket;
 
-        public DealWithClient(Socket socket) throws IOException {
+        public DealWithRequests(Socket socket) throws IOException {
             this.socket = socket;
-            in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            in = new ObjectInputStream(socket.getInputStream());
             out = new ObjectOutputStream(socket.getOutputStream());
         }
 
-        private void serve() throws IOException {
+        private void serve() throws ClassNotFoundException, IOException {
             while (true) {
-                String str = in.readLine();
+                ByteBlockRequest bbr = (ByteBlockRequest) in.readObject();
 
-                String args[] = str.split(" ");
-                int startIndex = parseInt(args[0]);
-                int length = parseInt(args[1]);
+                int startIndex = bbr.getStartIndex();
+                int length = bbr.getLength();
 
-                errorDetection(startIndex, length);
+                errorDetection(startIndex, length); // Só faz isto se for pedido de um cliente, ou também se for de um node? Como diferenciar?
 
                 CloudByte[] requestedData = new CloudByte[length];
                 for(int i = 0; i < length; i++)
@@ -227,6 +282,9 @@ public class StorageNode {
             } catch (IOException e) {
                 System.err.println("Client disconnected unexpectedly.");
             }
+            catch (ClassNotFoundException e) {
+                System.err.println("Error while reading request.");
+            }
         }
     }
 
@@ -234,7 +292,7 @@ public class StorageNode {
      * Accepts queries from clients.
      * @throws IOException
      */
-    public void startAcceptingClients() {
+    private void startAcceptingClients() {
         try {
             ServerSocket ss = new ServerSocket(nodePort);
             try {
@@ -242,7 +300,7 @@ public class StorageNode {
                 while(true) {
                     Socket socket = ss.accept();
                     System.out.println("New client connection established.");
-                    new DealWithClient(socket).start();
+                    new DealWithRequests(socket).start();
                 }
             } finally {
                 ss.close();
@@ -251,5 +309,4 @@ public class StorageNode {
             System.err.println("Error while opening the server socket to the directory.");
         }
     }
-
 }

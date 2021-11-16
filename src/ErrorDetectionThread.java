@@ -15,7 +15,7 @@ public class ErrorDetectionThread extends Thread {
     @Override
     public void run() {
         int i = startIndex;
-        while(!interrupted()) { // está infinito why n faz sentido
+        while(!interrupted()) {
             CloudByte cb = storageNode.getElementFromData(i);
             try {
                 sleep(1);

@@ -23,7 +23,7 @@ public class DataClient {
     private int nodePort;
     private Socket socket;
     private ObjectInputStream in;
-    private PrintWriter out;
+    private ObjectOutputStream out;
 
     public DataClient(String nodeIpAddress, int nodePort){
         this.nodeIpAddress = nodeIpAddress;
@@ -41,15 +41,15 @@ public class DataClient {
         //frame.setResizable(false);
         //frame.pack();
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        frame.setLocation(screenSize.width/2-frame.getWidth()/2, screenSize.height/2-frame.getHeight()/2);
         frame.setSize(700, 200);
+        frame.setLocation(screenSize.width/2-frame.getWidth()/2, screenSize.height/2-frame.getHeight()/2);
         frame.setVisible(true);
     }
 
     private void connectToNode() {
         try {
             socket = new Socket(InetAddress.getByName(nodeIpAddress), nodePort);
-            out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())), true);
+            out = new ObjectOutputStream(socket.getOutputStream());
             in = new ObjectInputStream(socket.getInputStream());
         } catch (IOException e) {
             System.err.println("Error connecting to node while creating socket and/or streams.");
@@ -62,7 +62,7 @@ public class DataClient {
         frame.setLayout(new GridLayout(2,1));
 
         JPanel panel = new JPanel();
-        panel.setLayout(new FlowLayout());
+        panel.setLayout(new FlowLayout(FlowLayout.CENTER, 0, 25));
 
         panel.add((new JLabel("Position:")));
 
@@ -78,8 +78,15 @@ public class DataClient {
         search.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent a) {
-                int numPosition = parseInt(position.getText());
-                int numLength = parseInt(length.getText());
+                int numPosition = 0;
+                int numLength = 0;
+                try {
+                    numPosition = parseInt(position.getText());
+                    numLength = parseInt(length.getText());
+                } catch (NumberFormatException e) {
+                    JOptionPane.showMessageDialog(frame, "Wrong arguments!");
+                    return;
+                }
                 if(numPosition < 0 || numPosition >= StorageNode.DATALENGTH) {
                     JOptionPane.showMessageDialog(frame, "Invalid position!");
                     return;
@@ -88,8 +95,11 @@ public class DataClient {
                     JOptionPane.showMessageDialog(frame, "Invalid length!");
                     return;
                 }
-                String request = numPosition + " " + numLength;
-                out.println(request);
+                try {
+                    out.writeObject(new ByteBlockRequest(numPosition, numLength));
+                } catch (IOException e) {
+                    System.err.println("Error sending request.");
+                }
                 try {
                     CloudByte[] data = (CloudByte[]) in.readObject();
                     String output = "";
@@ -101,10 +111,9 @@ public class DataClient {
                 }
             }
         });
+
         panel.add(search);
-
         frame.add(panel);
-
         answer = new JTextArea("Answers will appear here...");
         answer.setEditable(false);
         answer.setLineWrap(true);
