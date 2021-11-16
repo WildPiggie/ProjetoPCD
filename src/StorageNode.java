@@ -137,12 +137,10 @@ public class StorageNode {
      */
     public void registerInDirectory() {
         try {
-            String myIp = InetAddress.getLocalHost().getHostAddress();
-            InetAddress directoryIpAddr = InetAddress.getByName(directoryIp);
-
+            socket = new Socket(directoryIp, directoryPort);
+            String myIp = socket.getLocalAddress().getHostAddress();
             String message = "INSC " + myIp + " " + nodePort;
             System.out.println(message);
-            socket = new Socket(directoryIpAddr, directoryPort);
 
             out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())),true);
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));

@@ -23,3 +23,5 @@ Deteção de erros em 2 sitios? A pesquisa do gui corrige o erro antes de mostra
 
 A POSIÇÃO Q O CLIENTE PERGUNTA (e é injetada) PODE SER 0? DO TP IGUAL AS POSICOES DE UM ARRAY????????????? -
 Usamos como se for um array, 0 a 999999
+
+- length = 100000 na pos = 0 n funciona
