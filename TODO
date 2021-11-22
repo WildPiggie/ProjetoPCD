@@ -23,18 +23,19 @@ Deteção de erros em 2 sitios? A pesquisa do gui corrige o erro antes de mostra
 A POSIÇÃO Q O CLIENTE PERGUNTA (e é injetada) PODE SER 0? DO TP IGUAL AS POSICOES DE UM ARRAY????????????? -
 Usamos como se for um array, 0 a 999999
 
+Qdo tentamos pesquisar por 100000 de length demora IMENSO tempo... na realidade nnc chega a vir .. why? Talvez temos algum problema na GUI
+
+Só faz a deteção de erros no pedido se for pedido de um cliente, ou também se for de um node? Como diferenciar? Todas as respostas devem ser verificadas
+
+Temos que implementar nós a countdownlatch ou podemos usar uma do java? Temos de fazer o nosso próprio CDL
+
+
 Dúvidas:
 
 Como centrar verticalmente as coisas no flowlayout, grelha etc.
-
-Qdo tentamos pesquisar por 100000 de length demora IMENSO tempo... na realidade nnc chega a vir .. why?
-
-Só faz a deteção de erros no pedido se for pedido de um cliente, ou também se for de um node? Como diferenciar?
-
-Temos que implementar nós a countdownlatch ou podemos usar uma do java.
 
 Ao colocar as threads em classes à parte, há problema de alguns metodos do node serem apenas package private?
 
 Adicionar um cadeado ao nó para bloquear quando está a ler dados, ou está disponível por outra razão.
 
-A estrutura de cordenação para compor os blocos recebidos deverá ser um ByteBlockAnswer (outra classe) ?
+A estrutura de cordenação para compor os blocos recebidos deverá ser um ByteBlockAnswer (outra classe)?
