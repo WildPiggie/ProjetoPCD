@@ -1,7 +1,14 @@
 Fazer a classe ErrorDetectionThread
 Meter mais giras as verificações de erros da listenThread
 
-Esperar que os professores nos ensinem as cenas de sockets.
+Fazer o nosso próprio CDL.
+
+Adicionar variaveis condicionais à SynchronizedList
+
+Mecanismo de coordenação?
+
+
+
 
 Problema: qdo tentas lançar o no sem o diretorio tar a correr ele n morre e vai sacar o ficheiro!
 - ao injetar o erro entrou num loop -> comentei a parte q chama as threads de deteção
@@ -39,3 +46,5 @@ Ao colocar as threads em classes à parte, há problema de alguns metodos do nod
 Adicionar um cadeado ao nó para bloquear quando está a ler dados, ou está disponível por outra razão.
 
 A estrutura de cordenação para compor os blocos recebidos deverá ser um ByteBlockAnswer (outra classe)?
+
+A identificação do nó remoto é so o ip e o porto?

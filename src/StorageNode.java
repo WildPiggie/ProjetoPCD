@@ -55,7 +55,7 @@ public class StorageNode {
      * @param index
      * @return CloudByte at the given index.
      */
-    public CloudByte getElementFromData(int index) {
+    synchronized CloudByte getElementFromData(int index) {
         return data[index];
     }
 
@@ -64,7 +64,7 @@ public class StorageNode {
      * @param index
      * @param cloudByte
      */
-    void setElementData(int index, CloudByte cloudByte) {
+    synchronized void setElementData(int index, CloudByte cloudByte) {
         this.data[index] = cloudByte;
     }
 
@@ -127,16 +127,13 @@ public class StorageNode {
 
     private LinkedList<String> getNodes() throws IOException {
         out.println("nodes");
-
         LinkedList<String> nodes = new LinkedList();
-
         while(true){
             String line = in.readLine();
             if(line.equals("end"))
                 break;
             nodes.add(line);
         }
-
         return nodes;
     }
 
@@ -144,8 +141,6 @@ public class StorageNode {
      * Downloads data from other StorageNodes
      */
     private void getDataFromNodes(){
-        //TODO
-
         LinkedList<String> nodes = new LinkedList();
 
         try {
@@ -155,10 +150,7 @@ public class StorageNode {
             System.exit(1);
         }
 
-        int numberOfNodes = nodes.size();
-        int numberOfBlocks = DATALENGTH/DEFAULTBLOCKLENGTH;
-
-        SynchronizedList<ByteBlockRequest> list = new SynchronizedList(numberOfBlocks);
+        SynchronizedList<ByteBlockRequest> list = new SynchronizedList();
         for(int i = 0; i<DATALENGTH; i+=DEFAULTBLOCKLENGTH) {
             try {
                 list.put(new ByteBlockRequest(i, DEFAULTBLOCKLENGTH));
@@ -168,18 +160,19 @@ public class StorageNode {
             }
         }
 
-        CountDownLatch cdl = new CountDownLatch(numberOfBlocks);
+        CountDownLatch cdl = new CountDownLatch(DATALENGTH/DEFAULTBLOCKLENGTH);
 
         for(String line : nodes){
             String[] args = line.split(" ");
             String ip = args[1];
             int port = parseInt(args[2]);
             if(!(ip.equals(nodeIp) && port == nodePort))
-                new ByteBlockRequesterThread(cdl, list, ip, port).start();
+                new ByteBlockRequesterThread(cdl, list, ip, port, data).start();
         }
 
         try {
             cdl.await();
+
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -265,7 +258,7 @@ public class StorageNode {
                 int startIndex = bbr.getStartIndex();
                 int length = bbr.getLength();
 
-                errorDetection(startIndex, length); // Só faz isto se for pedido de um cliente, ou também se for de um node? Como diferenciar?
+                errorDetection(startIndex, length);
 
                 CloudByte[] requestedData = new CloudByte[length];
                 for(int i = 0; i < length; i++)
@@ -298,7 +291,7 @@ public class StorageNode {
             try {
                 System.out.println("Waiting for clients...");
                 while(true) {
-                    Socket socket = ss.accept();
+                    Socket socket = ss.accept(); // tanto para cliente GUI como para ByteBlockRequesterThreads
                     System.out.println("New client connection established.");
                     new DealWithRequests(socket).start();
                 }
@@ -306,7 +299,7 @@ public class StorageNode {
                 ss.close();
             }
         } catch (IOException e) {
-            System.err.println("Error while opening the server socket to the directory.");
+            System.err.println("Error while opening the server socket.");
         }
     }
 }
