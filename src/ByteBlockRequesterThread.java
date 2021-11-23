@@ -10,15 +10,15 @@ public class ByteBlockRequesterThread extends Thread {
     private ObjectInputStream in;
     private ObjectOutputStream out;
     private SynchronizedList<ByteBlockRequest> list;
-    private CloudByte[] data;
+    private StorageNode node;
     private int counter = 0;
 
 
-    public ByteBlockRequesterThread(SynchronizedList list,String ip, int port, CloudByte[] data) {
+    public ByteBlockRequesterThread(SynchronizedList list,String ip, int port, StorageNode node) {
         this.list = list;
         this.ip = ip;
         this.port = port;
-        this.data = data;
+        this.node = node;
 
         try {
             socket = new Socket(ip, port);
@@ -39,14 +39,8 @@ public class ByteBlockRequesterThread extends Thread {
 
                 CloudByte[] cb = (CloudByte[]) in.readObject();
 
-                synchronized (data) {  // mecanismo de coordenação?
-                    for(int i = 0; i < bbr.getLength(); i++)
-                        data[bbr.getStartIndex()+i] = cb[i];
-                }
+                node.setDataWithArray(cb, bbr.getStartIndex(), bbr.getLength());
 
-            } catch (InterruptedException e ) {
-                System.err.println("ByteBlockRequesterThread: Interrupted while getting a ByteBlockRequest from list.");
-                break;
             } catch (IOException e) {
                 System.err.println("ByteBlockRequesterThread: Error while sending ByteBlockRequest.");
             } catch (ClassNotFoundException e) {

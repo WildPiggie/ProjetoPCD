@@ -119,7 +119,7 @@ public class StorageNode {
             String[] args = nodes.get(i).split(" ");
             String ip = args[1];
             int port = parseInt(args[2]);
-            bbrtArray[i] = new ByteBlockRequesterThread(list, ip, port, data);
+            bbrtArray[i] = new ByteBlockRequesterThread(list, ip, port, this);
             bbrtArray[i].start();
         }
 
@@ -142,7 +142,7 @@ public class StorageNode {
                 break;
             nodes.add(line);
         }
-        nodes.removeIf(s -> s.equals("node " + nodeIp + " " + nodePort)); //remove-se a si proprio
+        nodes.removeIf(s -> s.equals("node " + nodeIp + " " + nodePort)); //remove-se a si próprio
         System.out.println("Nodes to connect in order to obtain data: " + nodes);
         return nodes;
     }
@@ -179,7 +179,7 @@ public class StorageNode {
      * @param position
      */
     void errorCorrection(int position) {
-        //TODO
+
     }
 
     /**
@@ -215,12 +215,14 @@ public class StorageNode {
 
     /**
      * Sets a CloudByte at the given index.
-     * @param index
-     * @param cloudByte
+     * @param array
+     * @param startIndex
+     * @param length
      */
-    synchronized void setElementData(int index, CloudByte cloudByte) {
-        this.data[index] = cloudByte;
-    } //nao estamos a usar a funcao
+    synchronized void setDataWithArray(CloudByte[] array, int startIndex, int length) {
+        for(int i = 0; i < length; i++)
+            data[startIndex+i] = array[i];
+    }
 
     public static void main(String[] args) {
         if(args.length < 3 || args.length > 4)

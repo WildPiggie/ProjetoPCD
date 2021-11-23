@@ -1,12 +1,4 @@
-Check - Fazer a classe ErrorDetectionThread
-Meter mais giras as verificações de erros da ListenerThread
-
 --- - Fazer o nosso próprio CDL.
-
-Check - Adicionar variaveis condicionais à SynchronizedList
-
-
-
 
 
 Problema: qdo tentas lançar o no sem o diretorio tar a correr ele n morre e vai sacar o ficheiro!
@@ -50,7 +42,9 @@ Dúvidas:
 problema de sincronização na BBRT
 
 Podemos usar o reentrant lock ou temos que criar nós a estrutura
-Na lista sincronizada o lock, em caso de exceção pode não ser fechada? Devemos colocar o catch dentro da estrutura?
+Na lista sincronizada, o lock, em caso de exceção, pode não ser fechado? Devemos colocar o catch dentro da estrutura?
+
+ErrorDetectionThread: Necessario colocar o interrupt na excecao para garantir que sai do loop quando e interrompido?
 
 
 

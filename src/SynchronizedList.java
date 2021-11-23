@@ -41,7 +41,7 @@ public class SynchronizedList<T> {
         return res;
     }
 
-    public T takeIfNotEmpty() throws InterruptedException {
+    public T takeIfNotEmpty() {
         lock.lock();
         if(list.isEmpty())
             return null;
