@@ -2,7 +2,6 @@ import java.io.*;
 import java.net.*;
 import java.nio.file.Files;
 import java.util.LinkedList;
-import java.util.Scanner;
 
 import static java.lang.Integer.parseInt;
 
@@ -37,8 +36,34 @@ public class StorageNode {
         registerInDirectory();
         getData();
         startErrorDetection(); // entra em loop
-        new listenThread().start();
+        new ListenerThread(this).start();
         startAcceptingClients();
+    }
+
+    /**
+     * Registers the StorageNode in the Directory.
+     */
+    private void registerInDirectory() {
+        try {
+            socket = new Socket(directoryIp, directoryPort);
+            nodeIp = socket.getLocalAddress().getHostAddress();
+            String message = "INSC " + nodeIp + " " + nodePort;
+
+            out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())),true);
+            in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+
+            out.println(message);
+
+        } catch (UnknownHostException e) {
+            System.err.println("Error while establishing the connection to the directory.");
+            System.err.println("Couldn't register to directory. Ending.");
+            System.exit(1);
+        } catch (IOException e) {
+            System.err.println("Error while creating the socket to the directory.");
+            System.err.println("Couldn't register to directory. Ending.");
+            System.exit(1);
+        }
+        System.out.println("Successfully registered in the directory.");
     }
 
     private void getData(){
@@ -50,91 +75,19 @@ public class StorageNode {
     }
 
     /**
-     * Gets CloudByte given its index.
-     * @param index
-     * @return CloudByte at the given index.
-     */
-    synchronized CloudByte getElementFromData(int index) {
-        return data[index];
-    }
-
-    /**
-     * Sets a CloudByte at the given index.
-     * @param index
-     * @param cloudByte
-     */
-    synchronized void setElementData(int index, CloudByte cloudByte) {
-        this.data[index] = cloudByte;
-    }
-
-    /**
-     * Starts error detection threads.
-     */
-    private void startErrorDetection() {
-        errorDetectionThreads = new ErrorDetectionThread[NUMERRORDETECTIONTHREADS];
-        for(int i=0; i<NUMERRORDETECTIONTHREADS; i++) {
-            int startIndex = (DATALENGTH/NUMERRORDETECTIONTHREADS)*i;
-            errorDetectionThreads[i] = new ErrorDetectionThread(this, startIndex);
-            errorDetectionThreads[i].start();
-        }
-    }
-
-    /**
-     * Console reader. Checks for valid commands inputted into the console.
-     * Valid commands include:
-     * ERROR x : Where x is the target byte to be corrupted
-     */
-    private class listenThread extends Thread {
-
-        @Override
-        public void run() {
-            Scanner sc = new Scanner(System.in);
-            while(true){ //isto pode precisar de um try catch (espera por coisas serem inseridas na consola)
-                //talvez fazer try catch do sc.next();
-                String command = sc.nextLine();
-                String[] args = command.split(" ");
-                if(args.length == 2) {
-                    try {
-                        int position = parseInt(args[1]);
-                        if (args[0].equals("ERROR") && position >= 0 && position < DATALENGTH) {
-                            CloudByte cb = data[position];
-                            cb.makeByteCorrupt();
-                            System.out.println("Error injected in position " + position + " : " + cb);
-                        } else System.err.println("Command not found.");
-                    } catch (NumberFormatException e) { System.err.println("Invalid command arguments."); }
-                } else System.err.println("Command not found.");
-            }
-        }
-    }
-
-    /**
      * Uploads data from existing file.
      */
     private void getDataFromFile(File file) {
-            try {
-                byte[] fileContents = Files.readAllBytes(file.toPath());
-                for(int i = 0; i < DATALENGTH; i++)
-                    data[i] = new CloudByte(fileContents[i]);
-                System.out.println("Data uploaded from file.");
-            } catch (IOException e) {
-                System.err.println("Error reading data from file.");
-                System.out.println("Attempting to get data from other nodes...");
-                getDataFromNodes();
-            }
-    }
-
-    private LinkedList<String> getNodes() throws IOException {
-        out.println("nodes");
-        LinkedList<String> nodes = new LinkedList();
-        while(true){
-            String line = in.readLine();
-            if(line.equals("end"))
-                break;
-            nodes.add(line);
+        try {
+            byte[] fileContents = Files.readAllBytes(file.toPath());
+            for(int i = 0; i < DATALENGTH; i++)
+                data[i] = new CloudByte(fileContents[i]);
+            System.out.println("Data uploaded from file.");
+        } catch (IOException e) {
+            System.err.println("Error reading data from file.");
+            System.out.println("Attempting to get data from other nodes...");
+            getDataFromNodes();
         }
-        nodes.removeIf(s -> s.equals("node " + nodeIp + " " + nodePort)); //remove-se a si proprio
-        System.out.println("Nodes to connect in order to obtain data: " + nodes);
-        return nodes;
     }
 
     /**
@@ -166,10 +119,8 @@ public class StorageNode {
             String[] args = nodes.get(i).split(" ");
             String ip = args[1];
             int port = parseInt(args[2]);
-            //if(!(ip.equals(nodeIp) && port == nodePort)) {
             bbrtArray[i] = new ByteBlockRequesterThread(list, ip, port, data);
             bbrtArray[i].start();
-            //}
         }
 
         try {
@@ -182,30 +133,30 @@ public class StorageNode {
         System.out.println("Data successfully obtained from nodes.");
     }
 
-    /**
-     * Registers the StorageNode in the Directory.
-     */
-    private void registerInDirectory() {
-        try {
-            socket = new Socket(directoryIp, directoryPort);
-            nodeIp = socket.getLocalAddress().getHostAddress();
-            String message = "INSC " + nodeIp + " " + nodePort;
-
-            out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())),true);
-            in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-
-            out.println(message);
-
-        } catch (UnknownHostException e) {
-            System.err.println("Error while establishing the connection to the directory.");
-            System.err.println("Couldn't register to directory. Ending.");
-            System.exit(1);
-        } catch (IOException e) {
-            System.err.println("Error while creating the socket to the directory.");
-            System.err.println("Couldn't register to directory. Ending.");
-            System.exit(1);
+    private LinkedList<String> getNodes() throws IOException {
+        out.println("nodes");
+        LinkedList<String> nodes = new LinkedList();
+        while(true){
+            String line = in.readLine();
+            if(line.equals("end"))
+                break;
+            nodes.add(line);
         }
-        System.out.println("Successfully registered in the directory.");
+        nodes.removeIf(s -> s.equals("node " + nodeIp + " " + nodePort)); //remove-se a si proprio
+        System.out.println("Nodes to connect in order to obtain data: " + nodes);
+        return nodes;
+    }
+
+    /**
+     * Starts error detection threads.
+     */
+    private void startErrorDetection() {
+        errorDetectionThreads = new ErrorDetectionThread[NUMERRORDETECTIONTHREADS];
+        for(int i=0; i<NUMERRORDETECTIONTHREADS; i++) {
+            int startIndex = (DATALENGTH/NUMERRORDETECTIONTHREADS)*i;
+            errorDetectionThreads[i] = new ErrorDetectionThread(this, startIndex);
+            errorDetectionThreads[i].start();
+        }
     }
 
     /**
@@ -213,7 +164,7 @@ public class StorageNode {
      * @param position
      * @param length
      */
-    private void errorDetection(int position, int length) {
+    void errorDetection(int position, int length) {
         for (int i = position; i < position + length; i++) {
             CloudByte cb = data[i];
             if (!cb.isParityOk()) {
@@ -231,58 +182,6 @@ public class StorageNode {
         //TODO
     }
 
-    public static void main(String[] args) {
-        if(args.length < 3 || args.length > 4)
-            throw new IllegalArgumentException("Invalid arguments!");
-        StorageNode storageNode = (args.length == 4) ? new StorageNode(args[0], parseInt(args[1]), parseInt(args[2]), args[3]) :
-                new StorageNode(args[0], parseInt(args[1]), parseInt(args[2]), "");
-        // TODO
-    }
-
-    /**
-     * Nested Class to deal with client queries and node queries.
-     */
-    private class DealWithRequests extends Thread{
-        private ObjectInputStream in;
-        private ObjectOutputStream out;
-        private Socket socket;
-
-        public DealWithRequests(Socket socket) throws IOException {
-            this.socket = socket;
-            in = new ObjectInputStream(socket.getInputStream());
-            out = new ObjectOutputStream(socket.getOutputStream());
-        }
-
-        private void serve() throws ClassNotFoundException, IOException {
-            while (true) {
-                ByteBlockRequest bbr = (ByteBlockRequest) in.readObject();
-
-                int startIndex = bbr.getStartIndex();
-                int length = bbr.getLength();
-
-                errorDetection(startIndex, length);
-
-                CloudByte[] requestedData = new CloudByte[length];
-                for(int i = 0; i < length; i++)
-                    requestedData[i] = data[i+startIndex];
-
-                out.writeObject(requestedData);
-            }
-        }
-
-        @Override
-        public void run() {
-            try {
-                serve();
-            } catch (IOException e) {
-                System.err.println("Client disconnected unexpectedly.");
-            }
-            catch (ClassNotFoundException e) {
-                System.err.println("Error while reading request.");
-            }
-        }
-    }
-
     /**
      * Accepts queries from clients.
      * @throws IOException
@@ -295,7 +194,7 @@ public class StorageNode {
                 while(true) {
                     Socket socket = ss.accept(); // tanto para cliente GUI como para ByteBlockRequesterThreads
                     System.out.println("New client connection established.");
-                    new DealWithRequests(socket).start();
+                    new DealWithRequests(socket, this).start();
                 }
             } finally {
                 ss.close();
@@ -303,5 +202,31 @@ public class StorageNode {
         } catch (IOException e) {
             System.err.println("Error while opening the server socket.");
         }
+    }
+
+    /**
+     * Gets CloudByte given its index.
+     * @param index
+     * @return CloudByte at the given index.
+     */
+    synchronized CloudByte getElementFromData(int index) {
+        return data[index];
+    }
+
+    /**
+     * Sets a CloudByte at the given index.
+     * @param index
+     * @param cloudByte
+     */
+    synchronized void setElementData(int index, CloudByte cloudByte) {
+        this.data[index] = cloudByte;
+    } //nao estamos a usar a funcao
+
+    public static void main(String[] args) {
+        if(args.length < 3 || args.length > 4)
+            throw new IllegalArgumentException("Invalid arguments!");
+        StorageNode storageNode = (args.length == 4) ? new StorageNode(args[0], parseInt(args[1]), parseInt(args[2]), args[3]) :
+                new StorageNode(args[0], parseInt(args[1]), parseInt(args[2]), "");
+        // TODO
     }
 }

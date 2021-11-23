@@ -1,9 +1,9 @@
-Fazer a classe ErrorDetectionThread
-Meter mais giras as verificações de erros da listenThread
+Check - Fazer a classe ErrorDetectionThread
+Meter mais giras as verificações de erros da ListenerThread
 
-Fazer o nosso próprio CDL.
+--- - Fazer o nosso próprio CDL.
 
-Adicionar variaveis condicionais à SynchronizedList
+Check - Adicionar variaveis condicionais à SynchronizedList
 
 
 
@@ -49,6 +49,8 @@ Dúvidas:
 
 problema de sincronização na BBRT
 
+Podemos usar o reentrant lock ou temos que criar nós a estrutura
+Na lista sincronizada o lock, em caso de exceção pode não ser fechada? Devemos colocar o catch dentro da estrutura?
 
 
 
