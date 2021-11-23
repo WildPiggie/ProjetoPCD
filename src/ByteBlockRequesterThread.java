@@ -31,10 +31,10 @@ public class ByteBlockRequesterThread extends Thread {
 
     @Override
     public void run() {
-        while(!interrupted() && !list.isEmpty()) {
-            //TODO
+        while(!interrupted()) { //!isEmpty()?
             try {
-                ByteBlockRequest bbr = list.take();
+                ByteBlockRequest bbr = list.takeIfNotEmpty();
+                if(bbr == null) break;
                 out.writeObject(bbr);
 
                 CloudByte[] cb = (CloudByte[]) in.readObject();
