@@ -4,7 +4,6 @@ import java.util.concurrent.CountDownLatch;
 
 public class ByteBlockRequesterThread extends Thread {
 
-    private CountDownLatch cdl;
     private String ip;
     private int port;
     private Socket socket;
@@ -15,8 +14,7 @@ public class ByteBlockRequesterThread extends Thread {
     private int counter = 0;
 
 
-    public ByteBlockRequesterThread(CountDownLatch cdl, SynchronizedList list,String ip, int port, CloudByte[] data) {
-        this.cdl = cdl;
+    public ByteBlockRequesterThread(SynchronizedList list,String ip, int port, CloudByte[] data) {
         this.list = list;
         this.ip = ip;
         this.port = port;
@@ -33,7 +31,7 @@ public class ByteBlockRequesterThread extends Thread {
 
     @Override
     public void run() {
-        while(!interrupted()) {
+        while(!interrupted() && !list.isEmpty()) {
             //TODO
             try {
                 ByteBlockRequest bbr = list.take();
@@ -54,9 +52,7 @@ public class ByteBlockRequesterThread extends Thread {
             } catch (ClassNotFoundException e) {
                 e.printStackTrace();
             }
-
             counter++;
-            cdl.countDown();
         }
         System.out.println("Node " + ip + ":" + port + " obtained " + counter + " blocks.");
     }

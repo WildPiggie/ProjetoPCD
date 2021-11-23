@@ -31,6 +31,10 @@ public class SynchronizedList<T> {
         return res;
     }
 
+    public synchronized boolean isEmpty() {
+        return list.isEmpty();
+    }
+
     public int size() {
         return list.size();
     }

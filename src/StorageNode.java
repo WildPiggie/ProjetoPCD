@@ -3,7 +3,6 @@ import java.net.*;
 import java.nio.file.Files;
 import java.util.LinkedList;
 import java.util.Scanner;
-import java.util.concurrent.CountDownLatch;
 
 import static java.lang.Integer.parseInt;
 
@@ -26,7 +25,7 @@ public class StorageNode {
     public static final int DATALENGTH = 1000000;
     public static final int DEFAULTBLOCKLENGTH = 100;
 
-    private CloudByte[] data;
+    private CloudByte[] data = new CloudByte[DATALENGTH];
     private ErrorDetectionThread[] errorDetectionThreads;
     private static final int NUMERRORDETECTIONTHREADS = 2;
 
@@ -113,7 +112,6 @@ public class StorageNode {
      */
     private void getDataFromFile(File file) {
             try {
-                data = new CloudByte[DATALENGTH];
                 byte[] fileContents = Files.readAllBytes(file.toPath());
                 for(int i = 0; i < DATALENGTH; i++)
                     data[i] = new CloudByte(fileContents[i]);
@@ -134,6 +132,8 @@ public class StorageNode {
                 break;
             nodes.add(line);
         }
+        nodes.removeIf(s -> s.equals("node " + nodeIp + " " + nodePort)); //remove-se a si proprio
+        System.out.println("Nodes to connect in order to obtain data: " + nodes);
         return nodes;
     }
 
@@ -141,6 +141,7 @@ public class StorageNode {
      * Downloads data from other StorageNodes
      */
     private void getDataFromNodes(){
+        System.out.println("Obtaining data from nodes...");
         LinkedList<String> nodes = new LinkedList();
 
         try {
@@ -159,26 +160,26 @@ public class StorageNode {
                 System.exit(1); //ATENÇÃO A ESTE SYSTEM EXIT.
             }
         }
-
-        CountDownLatch cdl = new CountDownLatch(DATALENGTH/DEFAULTBLOCKLENGTH);
-
-        for(String line : nodes){
-            String[] args = line.split(" ");
+        int numOfNodes = nodes.size();
+        ByteBlockRequesterThread[] bbrtArray = new ByteBlockRequesterThread[numOfNodes];
+        for(int i = 0; i<numOfNodes; i++){
+            String[] args = nodes.get(i).split(" ");
             String ip = args[1];
             int port = parseInt(args[2]);
-            if(!(ip.equals(nodeIp) && port == nodePort))
-                new ByteBlockRequesterThread(cdl, list, ip, port, data).start();
+            //if(!(ip.equals(nodeIp) && port == nodePort)) {
+            bbrtArray[i] = new ByteBlockRequesterThread(list, ip, port, data);
+            bbrtArray[i].start();
+            //}
         }
 
         try {
-            cdl.await();
-
+            for(ByteBlockRequesterThread bbrt : bbrtArray){
+                bbrt.join();
+            }
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            System.err.println("StorageNode: Interrupted while joining the ByteBlockRequesterThreads.");
         }
-
-        //mecanismo para após o await? Usar thread pools?
-        //System.exit(1); em caso de erro
+        System.out.println("Data successfully obtained from nodes.");
     }
 
     /**
@@ -204,6 +205,7 @@ public class StorageNode {
             System.err.println("Couldn't register to directory. Ending.");
             System.exit(1);
         }
+        System.out.println("Successfully registered in the directory.");
     }
 
     /**
@@ -233,7 +235,7 @@ public class StorageNode {
         if(args.length < 3 || args.length > 4)
             throw new IllegalArgumentException("Invalid arguments!");
         StorageNode storageNode = (args.length == 4) ? new StorageNode(args[0], parseInt(args[1]), parseInt(args[2]), args[3]) :
-                new StorageNode(args[0], parseInt(args[1]), parseInt(args[2]), null);
+                new StorageNode(args[0], parseInt(args[1]), parseInt(args[2]), "");
         // TODO
     }
 

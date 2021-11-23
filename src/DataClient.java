@@ -5,6 +5,7 @@ import java.awt.event.ActionListener;
 import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.util.Arrays;
 
 import static java.lang.Integer.parseInt;
 
@@ -102,10 +103,7 @@ public class DataClient {
                 }
                 try {
                     CloudByte[] data = (CloudByte[]) in.readObject();
-                    String output = "";
-                    for(int i = 0; i < data.length; i++)
-                        output += data[i].toString() + " ";
-                    answer.setText(output);
+                    answer.setText(Arrays.toString(data));
                 } catch (IOException | ClassNotFoundException e) {
                     System.err.println("Error reading received object.");
                 }
