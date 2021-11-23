@@ -43,8 +43,10 @@ public class SynchronizedList<T> {
 
     public T takeIfNotEmpty() {
         lock.lock();
-        if(list.isEmpty())
+        if(list.isEmpty()){
+            lock.unlock();
             return null;
+        }
         T res = list.remove();
         if(capacity != -1)
             fullList.signalAll();

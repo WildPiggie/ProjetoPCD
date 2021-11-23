@@ -179,7 +179,15 @@ public class StorageNode {
      * @param position
      */
     void errorCorrection(int position) {
+        LinkedList<String> nodes = new LinkedList();
 
+        try {
+            nodes = getNodes();
+        } catch (IOException e) {
+            System.err.println("Couldn't acquire nodes to correct detected errors.");
+            return;
+        }
+        //TODO
     }
 
     /**
