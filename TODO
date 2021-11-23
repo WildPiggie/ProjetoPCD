@@ -5,7 +5,6 @@ Fazer o nosso próprio CDL.
 
 Adicionar variaveis condicionais à SynchronizedList
 
-Mecanismo de coordenação?
 
 
 
@@ -38,14 +37,19 @@ Temos que implementar nós a countdownlatch ou podemos usar uma do java? Temos d
 
 A identificação do nó remoto é so o ip e o porto? sim
 
+Ao colocar as threads em classes à parte, há problema de alguns metodos do node serem apenas package private? metodos !
+
+
+Como centrar verticalmente as coisas no flowlayout, grelha etc. - podemos tentar aquele do norte e centro
+
+Problema de segurança nas aninhadas.... SEPARAR OK?
+
 
 Dúvidas:
 
-Como centrar verticalmente as coisas no flowlayout, grelha etc.
+problema de sincronização na BBRT
 
-Ao colocar as threads em classes à parte, há problema de alguns metodos do node serem apenas package private?
 
-Adicionar um cadeado ao nó para bloquear quando está a ler dados, ou está disponível por outra razão.
 
-A estrutura de cordenação para compor os blocos recebidos deverá ser um ByteBlockAnswer (outra classe)?
+
 
