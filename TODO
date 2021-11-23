@@ -36,6 +36,8 @@ Só faz a deteção de erros no pedido se for pedido de um cliente, ou também s
 
 Temos que implementar nós a countdownlatch ou podemos usar uma do java? Temos de fazer o nosso próprio CDL
 
+A identificação do nó remoto é so o ip e o porto? sim
+
 
 Dúvidas:
 
@@ -47,4 +49,3 @@ Adicionar um cadeado ao nó para bloquear quando está a ler dados, ou está dis
 
 A estrutura de cordenação para compor os blocos recebidos deverá ser um ByteBlockAnswer (outra classe)?
 
-A identificação do nó remoto é so o ip e o porto?

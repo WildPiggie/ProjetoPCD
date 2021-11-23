@@ -58,6 +58,6 @@ public class ByteBlockRequesterThread extends Thread {
             counter++;
             cdl.countDown();
         }
-        System.out.println("Number of blocks obtained: " + counter + ". Node " + ip + ":" + port);
+        System.out.println("Node " + ip + ":" + port + " obtained " + counter + " blocks.");
     }
 }
