@@ -1,6 +1,5 @@
 import java.io.*;
 import java.net.Socket;
-import java.util.concurrent.CountDownLatch;
 
 public class ByteBlockRequesterThread extends Thread {
 
@@ -14,7 +13,7 @@ public class ByteBlockRequesterThread extends Thread {
     private int counter = 0;
 
 
-    public ByteBlockRequesterThread(SynchronizedList list,String ip, int port, StorageNode node) {
+    public ByteBlockRequesterThread(SynchronizedList list, String ip, int port, StorageNode node) {
         this.list = list;
         this.ip = ip;
         this.port = port;
@@ -31,10 +30,10 @@ public class ByteBlockRequesterThread extends Thread {
 
     @Override
     public void run() {
-        while(!interrupted()) { //!isEmpty()?
+        while (!interrupted()) {
             try {
                 ByteBlockRequest bbr = list.takeIfNotEmpty();
-                if(bbr == null) break;
+                if (bbr == null) break;
                 out.writeObject(bbr);
 
                 CloudByte[] cb = (CloudByte[]) in.readObject();

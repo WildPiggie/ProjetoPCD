@@ -11,6 +11,7 @@ import static java.lang.Integer.parseInt;
 
 /**
  * Class for the DataClient interface. Allows for data queries on a certain Node.
+ *
  * @author Olga Silva & Samuel Correia
  */
 public class DataClient {
@@ -26,7 +27,7 @@ public class DataClient {
     private ObjectInputStream in;
     private ObjectOutputStream out;
 
-    public DataClient(String nodeIpAddress, int nodePort){
+    public DataClient(String nodeIpAddress, int nodePort) {
         this.nodeIpAddress = nodeIpAddress;
         this.nodePort = nodePort;
 
@@ -43,7 +44,7 @@ public class DataClient {
         //frame.pack();
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         frame.setSize(700, 200);
-        frame.setLocation(screenSize.width/2-frame.getWidth()/2, screenSize.height/2-frame.getHeight()/2);
+        frame.setLocation(screenSize.width / 2 - frame.getWidth() / 2, screenSize.height / 2 - frame.getHeight() / 2);
         frame.setVisible(true);
     }
 
@@ -60,7 +61,7 @@ public class DataClient {
 
     private void addFrameContent() {
 
-        frame.setLayout(new GridLayout(2,1));
+        frame.setLayout(new GridLayout(2, 1));
 
         JPanel panel = new JPanel();
         panel.setLayout(new FlowLayout(FlowLayout.CENTER, 0, 25));
@@ -88,11 +89,11 @@ public class DataClient {
                     JOptionPane.showMessageDialog(frame, "Wrong arguments!");
                     return;
                 }
-                if(numPosition < 0 || numPosition >= StorageNode.DATALENGTH) {
+                if (numPosition < 0 || numPosition >= StorageNode.DATALENGTH) {
                     JOptionPane.showMessageDialog(frame, "Invalid position!");
                     return;
                 }
-                if(numLength <= 0 || numPosition + numLength > StorageNode.DATALENGTH) {
+                if (numLength <= 0 || numPosition + numLength > StorageNode.DATALENGTH) {
                     JOptionPane.showMessageDialog(frame, "Invalid length!");
                     return;
                 }
@@ -123,7 +124,7 @@ public class DataClient {
 
     public static void main(String[] args) {
 
-        if(args.length != 2)
+        if (args.length != 2)
             throw new IllegalArgumentException("Invalid arguments!");
 
         DataClient dt = new DataClient(args[0], parseInt(args[1]));

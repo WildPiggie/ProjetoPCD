@@ -2,11 +2,13 @@ import java.io.*;
 import java.net.*;
 import java.nio.file.Files;
 import java.util.LinkedList;
+import java.util.concurrent.locks.Lock;
 
 import static java.lang.Integer.parseInt;
 
 /**
  * Class for the Storage Nodes.
+ *
  * @author Olga Silva & Samuel Correia
  */
 public class StorageNode {
@@ -49,7 +51,7 @@ public class StorageNode {
             nodeIp = socket.getLocalAddress().getHostAddress();
             String message = "INSC " + nodeIp + " " + nodePort;
 
-            out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())),true);
+            out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())), true);
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
             out.println(message);
@@ -66,9 +68,9 @@ public class StorageNode {
         System.out.println("Successfully registered in the directory.");
     }
 
-    private void getData(){
+    private void getData() {
         File file = new File(fileName);
-        if(file.isFile())
+        if (file.isFile())
             getDataFromFile(file);
         else
             getDataFromNodes();
@@ -80,7 +82,7 @@ public class StorageNode {
     private void getDataFromFile(File file) {
         try {
             byte[] fileContents = Files.readAllBytes(file.toPath());
-            for(int i = 0; i < DATALENGTH; i++)
+            for (int i = 0; i < DATALENGTH; i++)
                 data[i] = new CloudByte(fileContents[i]);
             System.out.println("Data uploaded from file.");
         } catch (IOException e) {
@@ -93,19 +95,17 @@ public class StorageNode {
     /**
      * Downloads data from other StorageNodes
      */
-    private void getDataFromNodes(){
+    private void getDataFromNodes() {
         System.out.println("Obtaining data from nodes...");
         LinkedList<String> nodes = new LinkedList();
-
         try {
             nodes = getNodes();
         } catch (IOException e) {
             System.err.println("Couldn't acquire nodes to obtain data. Ending.");
             System.exit(1);
         }
-
         SynchronizedList<ByteBlockRequest> list = new SynchronizedList();
-        for(int i = 0; i<DATALENGTH; i+=DEFAULTBLOCKLENGTH) {
+        for (int i = 0; i < DATALENGTH; i += DEFAULTBLOCKLENGTH) {
             try {
                 list.put(new ByteBlockRequest(i, DEFAULTBLOCKLENGTH));
             } catch (InterruptedException e) {
@@ -115,16 +115,15 @@ public class StorageNode {
         }
         int numOfNodes = nodes.size();
         ByteBlockRequesterThread[] bbrtArray = new ByteBlockRequesterThread[numOfNodes];
-        for(int i = 0; i<numOfNodes; i++){
+        for (int i = 0; i < numOfNodes; i++) {
             String[] args = nodes.get(i).split(" ");
             String ip = args[1];
             int port = parseInt(args[2]);
             bbrtArray[i] = new ByteBlockRequesterThread(list, ip, port, this);
             bbrtArray[i].start();
         }
-
         try {
-            for(ByteBlockRequesterThread bbrt : bbrtArray){
+            for (ByteBlockRequesterThread bbrt : bbrtArray) {
                 bbrt.join();
             }
         } catch (InterruptedException e) {
@@ -136,9 +135,9 @@ public class StorageNode {
     private LinkedList<String> getNodes() throws IOException {
         out.println("nodes");
         LinkedList<String> nodes = new LinkedList();
-        while(true){
+        while (true) {
             String line = in.readLine();
-            if(line.equals("end"))
+            if (line.equals("end"))
                 break;
             nodes.add(line);
         }
@@ -152,8 +151,8 @@ public class StorageNode {
      */
     private void startErrorDetection() {
         errorDetectionThreads = new ErrorDetectionThread[NUMERRORDETECTIONTHREADS];
-        for(int i=0; i<NUMERRORDETECTIONTHREADS; i++) {
-            int startIndex = (DATALENGTH/NUMERRORDETECTIONTHREADS)*i;
+        for (int i = 0; i < NUMERRORDETECTIONTHREADS; i++) {
+            int startIndex = (DATALENGTH / NUMERRORDETECTIONTHREADS) * i;
             errorDetectionThreads[i] = new ErrorDetectionThread(this, startIndex);
             errorDetectionThreads[i].start();
         }
@@ -161,6 +160,7 @@ public class StorageNode {
 
     /**
      * Detects errors in bytes position through position+length.
+     *
      * @param position
      * @param length
      */
@@ -176,6 +176,7 @@ public class StorageNode {
 
     /**
      * Corrects error in byte given its position.
+     *
      * @param position
      */
     void errorCorrection(int position) {
@@ -192,6 +193,7 @@ public class StorageNode {
 
     /**
      * Accepts queries from clients.
+     *
      * @throws IOException
      */
     private void startAcceptingClients() {
@@ -199,7 +201,7 @@ public class StorageNode {
             ServerSocket ss = new ServerSocket(nodePort);
             try {
                 System.out.println("Waiting for clients...");
-                while(true) {
+                while (true) {
                     Socket socket = ss.accept(); // tanto para cliente GUI como para ByteBlockRequesterThreads
                     System.out.println("New client connection established.");
                     new DealWithRequests(socket, this).start();
@@ -214,6 +216,7 @@ public class StorageNode {
 
     /**
      * Gets CloudByte given its index.
+     *
      * @param index
      * @return CloudByte at the given index.
      */
@@ -223,20 +226,20 @@ public class StorageNode {
 
     /**
      * Sets a CloudByte at the given index.
+     *
      * @param array
      * @param startIndex
      * @param length
      */
     synchronized void setDataWithArray(CloudByte[] array, int startIndex, int length) {
-        for(int i = 0; i < length; i++)
-            data[startIndex+i] = array[i];
+        for (int i = 0; i < length; i++)
+            data[startIndex + i] = array[i];
     }
 
     public static void main(String[] args) {
-        if(args.length < 3 || args.length > 4)
+        if (args.length < 3 || args.length > 4)
             throw new IllegalArgumentException("Invalid arguments!");
         StorageNode storageNode = (args.length == 4) ? new StorageNode(args[0], parseInt(args[1]), parseInt(args[2]), args[3]) :
                 new StorageNode(args[0], parseInt(args[1]), parseInt(args[2]), "");
-        // TODO
     }
 }

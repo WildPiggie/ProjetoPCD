@@ -1,5 +1,28 @@
 --- - Fazer o nosso próprio CDL.
 
+Para resolver a concorrencia das threads de deteção/correção de erros:
+Isto também se devia aplicar na escrita e talvez leitura do array.
+
+Podemos ter um uma lock por elemento do array.
+
+Podemos ter uma lock por thread de error correction, que indica a posição a ser tratada.
+Teriamos que ser nós a criar acho eu.
+Podia ser uma estrutura que tem um array/lista de inteiros com tamanho o numero de threads,
+em que o indice indica o thread (se for um array), e o valor o indice a ser trabalhado.
+Para acionar seria lock.lock(pos) ou lock.lock(thread index, pos)
+mas acho que não precisa de ser identificada qual a thread a trabalhar na posição.
+Assim bloqueava se a posição estiver ocupada, também podemos fazer algo para ele passar à frente.
+(Se for uma lista pode ser mais versátil, e ser usada na escrita inicial do ficheiro por exemplo getDataFromNodes)
+
+Também existem transações mas não acho que é a melhor opção: Processamento perdido.
+
+...
+
+A correção de erros pode ser realizada por uma única thread que recebe os nós a que se deve connectar acho eu.
+Por outro lado como estamos a pcd talvez querem que seja tudo mais concorrente.
+De qualquer forma reutilizar o byteblockrequester thread seria bom, mas como dizem que se deve usar a cdl:
+Ou mudamos a bbrt para usar cdl ou criamos outra thread que nem precisa de receber uma lista de pedidos, recebe apenas um.
+
 
 Problema: qdo tentas lançar o no sem o diretorio tar a correr ele n morre e vai sacar o ficheiro!
 - ao injetar o erro entrou num loop -> comentei a parte q chama as threads de deteção
@@ -12,30 +35,13 @@ Usar algo para associar a cada posição se: Está a ser lido ou alterado. (Bloq
 
 Só dps de ter sido feita a correção é que query é apresentada ao cliente? Manda informação sem (hehe)
 
-Temos que colocar printstacktrace ou podemos por outra mensagem explicativa do erro
-
-Como fazer para funcionar nos 2 pcs? os ips n tao a querer colaborar
-
-Deteção de erros em 2 sitios? A pesquisa do gui corrige o erro antes de mostrar os dados
-
-A POSIÇÃO Q O CLIENTE PERGUNTA (e é injetada) PODE SER 0? DO TP IGUAL AS POSICOES DE UM ARRAY????????????? -
-Usamos como se for um array, 0 a 999999
-
-Qdo tentamos pesquisar por 100000 de length demora IMENSO tempo... na realidade nnc chega a vir .. why? Talvez temos algum problema na GUI
-
-Só faz a deteção de erros no pedido se for pedido de um cliente, ou também se for de um node? Como diferenciar? Todas as respostas devem ser verificadas
+Qdo tentamos pesquisar por 100000 de length demora IMENSO tempo... na realidade nnc chega a vir .. why? A gui parece estar a atrasar bué
 
 Temos que implementar nós a countdownlatch ou podemos usar uma do java? Temos de fazer o nosso próprio CDL
 
-A identificação do nó remoto é so o ip e o porto? sim
-
 Ao colocar as threads em classes à parte, há problema de alguns metodos do node serem apenas package private? metodos !
 
-
 Como centrar verticalmente as coisas no flowlayout, grelha etc. - podemos tentar aquele do norte e centro
-
-Problema de segurança nas aninhadas.... SEPARAR OK?
-
 
 Dúvidas:
 
@@ -45,7 +51,3 @@ Podemos usar o reentrant lock ou temos que criar nós a estrutura
 Na lista sincronizada, o lock, em caso de exceção, pode não ser fechado? Devemos colocar o catch dentro da estrutura?
 
 ErrorDetectionThread: Necessario colocar o interrupt na excecao para garantir que sai do loop quando e interrompido?
-
-
-
-

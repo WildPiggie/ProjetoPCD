@@ -6,7 +6,7 @@ import java.net.Socket;
 /**
  * Nested Class to deal with client queries and node queries.
  */
-public class DealWithRequests extends Thread{
+public class DealWithRequests extends Thread {
     private ObjectInputStream in;
     private ObjectOutputStream out;
     private Socket socket;
@@ -29,8 +29,8 @@ public class DealWithRequests extends Thread{
             node.errorDetection(startIndex, length);
 
             CloudByte[] requestedData = new CloudByte[length];
-            for(int i = 0; i < length; i++)
-                requestedData[i] = node.getElementFromData(i+startIndex);
+            for (int i = 0; i < length; i++)
+                requestedData[i] = node.getElementFromData(i + startIndex);
 
             out.writeObject(requestedData);
         }
@@ -42,8 +42,7 @@ public class DealWithRequests extends Thread{
             serve();
         } catch (IOException e) {
             System.err.println("Client disconnected unexpectedly.");
-        }
-        catch (ClassNotFoundException e) {
+        } catch (ClassNotFoundException e) {
             System.err.println("Error while reading request.");
         }
     }

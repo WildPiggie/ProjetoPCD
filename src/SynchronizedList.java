@@ -16,7 +16,7 @@ public class SynchronizedList<T> {
     }
 
     public SynchronizedList(int capacity) {
-        if(capacity <= 0)
+        if (capacity <= 0)
             throw new IllegalArgumentException();
         this.capacity = capacity;
     }
@@ -35,7 +35,7 @@ public class SynchronizedList<T> {
         while (list.isEmpty())
             emptyList.await();
         T res = list.remove();
-        if(capacity != -1)
+        if (capacity != -1)
             fullList.signalAll();
         lock.unlock();
         return res;
@@ -43,12 +43,12 @@ public class SynchronizedList<T> {
 
     public T takeIfNotEmpty() {
         lock.lock();
-        if(list.isEmpty()){
+        if (list.isEmpty()) {
             lock.unlock();
             return null;
         }
         T res = list.remove();
-        if(capacity != -1)
+        if (capacity != -1)
             fullList.signalAll();
         lock.unlock();
         return res;

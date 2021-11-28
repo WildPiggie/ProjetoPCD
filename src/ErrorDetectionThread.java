@@ -1,5 +1,6 @@
 /**
  * Class for the Error Detection Thread. Used by the nodes in order to check for errors in their data.
+ *
  * @author Olga Silva & Samuel Correia
  */
 public class ErrorDetectionThread extends Thread {
@@ -15,7 +16,7 @@ public class ErrorDetectionThread extends Thread {
     @Override
     public void run() {
         int i = startIndex;
-        while(!interrupted()) {
+        while (!interrupted()) {
             CloudByte cb = storageNode.getElementFromData(i);
             try {
                 sleep(1);
@@ -23,11 +24,11 @@ public class ErrorDetectionThread extends Thread {
                 //interrupt(); Necessario para garantir que sai do loop quando e interrompido?
                 System.err.println("Error detection thread interrupted while sleeping.");
             }
-            if(!cb.isParityOk()) {
+            if (!cb.isParityOk()) {
                 System.err.println("Error detected in byte " + i + ".");
                 storageNode.errorCorrection(i);
             }
-            if(++i == StorageNode.DATALENGTH) i = 0;
+            if (++i == StorageNode.DATALENGTH) i = 0;
         }
     }
 }

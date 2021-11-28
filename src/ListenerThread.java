@@ -18,11 +18,11 @@ public class ListenerThread extends Thread {
     @Override
     public void run() {
         Scanner sc = new Scanner(System.in);
-        while(true){ //isto pode precisar de um try catch (espera por coisas serem inseridas na consola)
+        while (true) { //isto pode precisar de um try catch (espera por coisas serem inseridas na consola)
             //talvez fazer try catch do sc.nextLine();
             String command = sc.nextLine();
             String[] args = command.split(" ");
-            if(args.length == 2) {
+            if (args.length == 2) {
                 try {
                     int position = parseInt(args[1]);
                     if (args[0].equals("ERROR") && position >= 0 && position < node.DATALENGTH) {
@@ -30,7 +30,9 @@ public class ListenerThread extends Thread {
                         cb.makeByteCorrupt();
                         System.out.println("Error injected in position " + position + " : " + cb);
                     } else System.err.println("Command not found.");
-                } catch (NumberFormatException e) { System.err.println("Invalid command arguments."); }
+                } catch (NumberFormatException e) {
+                    System.err.println("Invalid command arguments.");
+                }
             } else System.err.println("Command not found.");
         }
     }
