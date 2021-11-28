@@ -3,8 +3,6 @@
 Para resolver a concorrencia das threads de deteção/correção de erros:
 Isto também se devia aplicar na escrita e talvez leitura do array.
 
-Podemos ter um uma lock por elemento do array.
-
 Podemos ter uma lock por thread de error correction, que indica a posição a ser tratada.
 Teriamos que ser nós a criar acho eu.
 Podia ser uma estrutura que tem um array/lista de inteiros com tamanho o numero de threads,
@@ -23,12 +21,6 @@ Por outro lado como estamos a pcd talvez querem que seja tudo mais concorrente.
 De qualquer forma reutilizar o byteblockrequester thread seria bom, mas como dizem que se deve usar a cdl:
 Ou mudamos a bbrt para usar cdl ou criamos outra thread que nem precisa de receber uma lista de pedidos, recebe apenas um.
 
-
-Problema: qdo tentas lançar o no sem o diretorio tar a correr ele n morre e vai sacar o ficheiro!
-- ao injetar o erro entrou num loop -> comentei a parte q chama as threads de deteção
-- nas msgs pra consola tirei o i+1 e passou a ser so i
-- data[position - 1].makeByteCorrupt(); // pos-1 para que ao injetar o erro no byte 2 vá parar à pos 1 do array -> na listenerThread
-
 Dúvidas respondidas:
 array de cloudByte OUUUUU outra estrutura de dados? Hashmap
 Usar algo para associar a cada posição se: Está a ser lido ou alterado. (Bloqueante)
@@ -45,9 +37,16 @@ Como centrar verticalmente as coisas no flowlayout, grelha etc. - podemos tentar
 
 Dúvidas:
 
-problema de sincronização na BBRT
+Temos de fazer o nosso próprio CDL?
 
 Podemos usar o reentrant lock ou temos que criar nós a estrutura
 Na lista sincronizada, o lock, em caso de exceção, pode não ser fechado? Devemos colocar o catch dentro da estrutura?
 
 ErrorDetectionThread: Necessario colocar o interrupt na excecao para garantir que sai do loop quando e interrompido?
+
+Criar classe abstrata para "unir" a ErrorCorrectionThread e a ByteBlockRequesterThread
+
+bbrt.join(); vs usar cdl. O cdl não será mais eficiente?
+
+Quando recebemos os 2 bytes para realizar a correção de erros podemos assumir que estão iguais quanto ao nível de conteudo
+como de paridade? Se não, como devemos fazer?

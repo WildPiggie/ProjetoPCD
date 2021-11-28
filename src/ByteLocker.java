@@ -1,7 +1,6 @@
 import java.util.ArrayList;
-import java.util.concurrent.locks.ReentrantLock;
 
-public class ByteLockerTest  {
+public class ByteLocker {
 
     private ArrayList<Integer> lockedByte = new ArrayList();
 

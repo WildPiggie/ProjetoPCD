@@ -124,7 +124,7 @@ public class StorageNode {
         }
         try {
             for (ByteBlockRequesterThread bbrt : bbrtArray) {
-                bbrt.join();
+                bbrt.join(); //isto
             }
         } catch (InterruptedException e) {
             System.err.println("StorageNode: Interrupted while joining the ByteBlockRequesterThreads.");
@@ -177,9 +177,9 @@ public class StorageNode {
     /**
      * Corrects error in byte given its position.
      *
-     * @param position
+     * @param index
      */
-    void errorCorrection(int position) {
+    void errorCorrection(int index) {
         LinkedList<String> nodes = new LinkedList();
 
         try {
@@ -188,7 +188,41 @@ public class StorageNode {
             System.err.println("Couldn't acquire nodes to correct detected errors.");
             return;
         }
-        //TODO
+        CountDownLatch cdl = new CountDownLatch(2);
+        ByteBlockRequest bbr = new ByteBlockRequest(index, 1);
+        int numOfNodes = nodes.size();
+
+        ErrorCorrectionThread[] ectArray = new ErrorCorrectionThread[numOfNodes];
+        for (int i = 0; i < numOfNodes; i++) {
+            String[] args = nodes.get(i).split(" ");
+            String ip = args[1];
+            int port = parseInt(args[2]);
+            ectArray[i] = new ErrorCorrectionThread(ip, port, this, cdl, bbr);
+            ectArray[i].start();
+        }
+        try {
+            cdl.await();
+        } catch (InterruptedException e) {
+            System.err.println("StorageNode: Interrupted while awaiting the ErrorCorrectionThreads.");
+        }
+
+        /*int counter = 0;
+        int i;
+        CloudByte cb = null;
+        for(i = 0; i < numOfNodes && counter < 2; i++){
+            if(!ectArray[i].isAlive()) {
+                if(cb == null)
+                    cb = ectArray[i].getReceivedByte();
+                counter++;
+            }
+        }
+
+        if(cb.equals(ectArray[i].getReceivedByte()))
+            System.out.println("Encontrei");*/
+
+        data[index].makeByteCorrupt(); //batota
+
+        System.out.println("Byte " + index + " was successfully corrected.");
     }
 
     /**
@@ -203,7 +237,7 @@ public class StorageNode {
                 System.out.println("Waiting for clients...");
                 while (true) {
                     Socket socket = ss.accept(); // tanto para cliente GUI como para ByteBlockRequesterThreads
-                    System.out.println("New client connection established.");
+                    System.out.println("New client connection established with: " + socket.getInetAddress().getHostAddress() + ":" + socket.getLocalPort());
                     new DealWithRequests(socket, this).start();
                 }
             } finally {
