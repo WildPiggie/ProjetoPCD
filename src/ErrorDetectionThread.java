@@ -7,10 +7,12 @@ public class ErrorDetectionThread extends Thread {
 
     private StorageNode storageNode;
     private int startIndex;
+    private ByteLocker bl;
 
-    public ErrorDetectionThread(StorageNode storageNode, int startIndex) {
+    public ErrorDetectionThread(StorageNode storageNode, int startIndex, ByteLocker bl) {
         this.storageNode = storageNode;
         this.startIndex = startIndex;
+        this.bl = bl;
     }
 
     @Override
@@ -24,10 +26,13 @@ public class ErrorDetectionThread extends Thread {
                 //interrupt(); Necessario para garantir que sai do loop quando e interrompido?
                 System.err.println("Error detection thread interrupted while sleeping.");
             }
-            if (!cb.isParityOk()) {
+
+            if (!cb.isParityOk() && bl.lock(i)) {
                 System.err.println("Error detected in byte " + i + ".");
                 storageNode.errorCorrection(i);
+                bl.unlock(i);
             }
+
             if (++i == StorageNode.DATALENGTH) i = 0;
         }
     }

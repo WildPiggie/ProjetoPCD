@@ -6,13 +6,13 @@ import java.net.Socket;
 /**
  * Nested Class to deal with client queries and node queries.
  */
-public class DealWithRequests extends Thread {
+public class DealWithRequestsNode extends Thread {
     private ObjectInputStream in;
     private ObjectOutputStream out;
     private Socket socket;
     private StorageNode node;
 
-    public DealWithRequests(Socket socket, StorageNode node) throws IOException {
+    public DealWithRequestsNode(Socket socket, StorageNode node) throws IOException {
         this.socket = socket;
         this.node = node;
         in = new ObjectInputStream(socket.getInputStream());

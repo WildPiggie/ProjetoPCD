@@ -2,7 +2,6 @@ import java.io.*;
 import java.net.*;
 import java.nio.file.Files;
 import java.util.LinkedList;
-import java.util.concurrent.locks.Lock;
 
 import static java.lang.Integer.parseInt;
 
@@ -105,14 +104,9 @@ public class StorageNode {
             System.exit(1);
         }
         SynchronizedList<ByteBlockRequest> list = new SynchronizedList();
-        for (int i = 0; i < DATALENGTH; i += DEFAULTBLOCKLENGTH) {
-            try {
-                list.put(new ByteBlockRequest(i, DEFAULTBLOCKLENGTH));
-            } catch (InterruptedException e) {
-                System.err.println("Interrupted while adding ByteBlockRequest to list. Ending.");
-                System.exit(1); //ATENÇÃO A ESTE SYSTEM EXIT.
-            }
-        }
+        for (int i = 0; i < DATALENGTH; i += DEFAULTBLOCKLENGTH)
+            list.put(new ByteBlockRequest(i, DEFAULTBLOCKLENGTH));
+
         int numOfNodes = nodes.size();
         ByteBlockRequesterThread[] bbrtArray = new ByteBlockRequesterThread[numOfNodes];
         for (int i = 0; i < numOfNodes; i++) {
@@ -151,9 +145,10 @@ public class StorageNode {
      */
     private void startErrorDetection() {
         errorDetectionThreads = new ErrorDetectionThread[NUMERRORDETECTIONTHREADS];
+        ByteLocker bl = new ByteLocker();
         for (int i = 0; i < NUMERRORDETECTIONTHREADS; i++) {
             int startIndex = (DATALENGTH / NUMERRORDETECTIONTHREADS) * i;
-            errorDetectionThreads[i] = new ErrorDetectionThread(this, startIndex);
+            errorDetectionThreads[i] = new ErrorDetectionThread(this, startIndex, bl);
             errorDetectionThreads[i].start();
         }
     }
@@ -206,23 +201,22 @@ public class StorageNode {
             System.err.println("StorageNode: Interrupted while awaiting the ErrorCorrectionThreads.");
         }
 
-        /*int counter = 0;
-        int i;
-        CloudByte cb = null;
-        for(i = 0; i < numOfNodes && counter < 2; i++){
-            if(!ectArray[i].isAlive()) {
-                if(cb == null)
-                    cb = ectArray[i].getReceivedByte();
-                counter++;
+        CloudByte[] cbs = new CloudByte[2];
+        int i=0;
+        for(ErrorCorrectionThread ect : ectArray) {
+            if(ect.getReceivedByte() != null) {
+                cbs[i] = ect.getReceivedByte();
+                i++;
             }
         }
 
-        if(cb.equals(ectArray[i].getReceivedByte()))
-            System.out.println("Encontrei");*/
+        if(!cbs[0].equals(cbs[1]))
+            System.err.println("StorageNode: Couldn't correct the detected error.");
+        else {
+            setEllement(index, cbs[0]);
+            System.out.println("Byte " + index + " was successfully corrected.");
+        }
 
-        data[index].makeByteCorrupt(); //batota
-
-        System.out.println("Byte " + index + " was successfully corrected.");
     }
 
     /**
@@ -238,7 +232,7 @@ public class StorageNode {
                 while (true) {
                     Socket socket = ss.accept(); // tanto para cliente GUI como para ByteBlockRequesterThreads
                     System.out.println("New client connection established with: " + socket.getInetAddress().getHostAddress() + ":" + socket.getLocalPort());
-                    new DealWithRequests(socket, this).start();
+                    new DealWithRequestsNode(socket, this).start();
                 }
             } finally {
                 ss.close();
@@ -268,6 +262,10 @@ public class StorageNode {
     synchronized void setDataWithArray(CloudByte[] array, int startIndex, int length) {
         for (int i = 0; i < length; i++)
             data[startIndex + i] = array[i];
+    }
+
+    synchronized void setEllement(int index, CloudByte cb) {
+        data[index] = cb;
     }
 
     public static void main(String[] args) {

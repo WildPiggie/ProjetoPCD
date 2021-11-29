@@ -1,17 +1,21 @@
 import java.util.ArrayList;
 
+/**
+ * Explanation
+ *
+ */
+
 public class ByteLocker {
 
     private ArrayList<Integer> lockedByte = new ArrayList();
 
-    private synchronized void lock(int index) throws InterruptedException { //pode ser boolean se quisermos dar skip a bytes que estão a ser trabalhados
-        while(lockedByte.contains(index))
-            wait();
-        lockedByte.add(index);
+    public synchronized boolean lock(int index) {
+        if(lockedByte.contains(index))
+            return false;
+        return lockedByte.add(index);
     }
 
-    private synchronized void unlock(int index) throws InterruptedException {
+    public synchronized void unlock(int index) {
         lockedByte.remove(index);
-        notifyAll();
     }
 }

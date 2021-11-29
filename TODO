@@ -35,18 +35,33 @@ Ao colocar as threads em classes à parte, há problema de alguns metodos do nod
 
 Como centrar verticalmente as coisas no flowlayout, grelha etc. - podemos tentar aquele do norte e centro
 
+bbrt.join(); vs usar cdl. O cdl não será mais eficiente? meh n ia ser util overall
+
+Temos de fazer o nosso próprio CDL? Sim
+
+Podemos usar o reentrant lock ou temos que criar nós a estrutura? sim podemos usar
+
+Quando recebemos os 2 bytes para realizar a correção de erros podemos assumir que estão iguais quanto ao nível de conteudo
+como de paridade? Se não, como devemos fazer?
+Na deteção so ver se ta null ou não null independentemente se foram as threads que deram countdown - DONE
+
+
+
 Dúvidas:
 
-Temos de fazer o nosso próprio CDL?
-
-Podemos usar o reentrant lock ou temos que criar nós a estrutura
 Na lista sincronizada, o lock, em caso de exceção, pode não ser fechado? Devemos colocar o catch dentro da estrutura?
 
 ErrorDetectionThread: Necessario colocar o interrupt na excecao para garantir que sai do loop quando e interrompido?
 
-Criar classe abstrata para "unir" a ErrorCorrectionThread e a ByteBlockRequesterThread
+Criar classe abstrata para "unir" a ErrorCorrectionThread e a ByteBlockRequesterThread -> pode complicar mas o stor n sabe se é boa ideia
 
-bbrt.join(); vs usar cdl. O cdl não será mais eficiente?
+Lançar exceções ou syserr?
 
-Quando recebemos os 2 bytes para realizar a correção de erros podemos assumir que estão iguais quanto ao nível de conteudo
-como de paridade? Se não, como devemos fazer?
+Lock e unlock nos sitios certos????????????????????
+
+Na synchronized list preferivel a usar wait e notifyall?
+
+Fazer verificação do porto no storagenode????????????????????????????
+
+
+Ver a cena do diretorio com o nó

@@ -1,30 +1,19 @@
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Consumer;
 
-public class SynchronizedList<T> {
+public class SynchronizedList<T> implements Iterable<T> {
 
     private LinkedList<T> list = new LinkedList<T>();
-    private int capacity;
     private Lock lock = new ReentrantLock();
-    private Condition fullList = lock.newCondition();
-    private Condition emptyList = lock.newCondition();
+    private Condition emptyList = lock.newCondition(); // preferivel a usar wait e notifyall?
 
-    public SynchronizedList() {
-        this.capacity = -1;
-    }
 
-    public SynchronizedList(int capacity) {
-        if (capacity <= 0)
-            throw new IllegalArgumentException();
-        this.capacity = capacity;
-    }
-
-    public void put(T t) throws InterruptedException {
+    public void put(T t) {
         lock.lock();
-        while (list.size() == capacity)
-            fullList.await();
         list.add(t);
         emptyList.signalAll();
         lock.unlock();
@@ -35,8 +24,6 @@ public class SynchronizedList<T> {
         while (list.isEmpty())
             emptyList.await();
         T res = list.remove();
-        if (capacity != -1)
-            fullList.signalAll();
         lock.unlock();
         return res;
     }
@@ -48,8 +35,6 @@ public class SynchronizedList<T> {
             return null;
         }
         T res = list.remove();
-        if (capacity != -1)
-            fullList.signalAll();
         lock.unlock();
         return res;
     }
@@ -69,4 +54,14 @@ public class SynchronizedList<T> {
     public void clear() {
         list.clear();
     }
+
+    public boolean remove(T t) {
+        return list.remove(t);
+    }
+
+    @Override
+    public Iterator<T> iterator() {
+        return list.iterator();
+    }
+
 }
