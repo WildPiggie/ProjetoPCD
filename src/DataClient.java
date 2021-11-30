@@ -17,11 +17,11 @@ import static java.lang.Integer.parseInt;
 public class DataClient {
 
     private static final int TF_COLUMNS = 10;
-    private JFrame frame;
+    private final JFrame frame;
     private JTextField position;
     private JTextField length;
     private JTextArea answer;
-    private String nodeIpAddress;
+    private final String nodeIpAddress;
     private int nodePort;
     private Socket socket;
     private ObjectInputStream in;
@@ -33,10 +33,8 @@ public class DataClient {
 
         connectToNode();
 
-        //Interface
         frame = new JFrame("Client");
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-
 
         addFrameContent();
 
@@ -60,7 +58,6 @@ public class DataClient {
     }
 
     private void addFrameContent() {
-
         frame.setLayout(new GridLayout(2, 1));
 
         JPanel panel = new JPanel();
@@ -123,9 +120,10 @@ public class DataClient {
     }
 
     public static void main(String[] args) {
-
         if (args.length != 2)
             throw new IllegalArgumentException("Invalid arguments!");
+        if(parseInt(args[1]) < 0)
+            throw new IllegalArgumentException("Invalid port number!");
 
         DataClient dt = new DataClient(args[0], parseInt(args[1]));
     }

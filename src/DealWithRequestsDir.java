@@ -21,14 +21,13 @@ public class DealWithRequestsDir extends Thread {
     private void serve() throws ClassNotFoundException, IOException {
         while (true) {
             String msg = in.readLine();
-
             if(msg.equals("nodes")) {
                 for(String node : dir.nodes)
                     out.println(node);
                 out.println("end");
             } else {
                 String[] args = msg.split(" ");
-                if(args.length == 3 && args[0].equals("INSC") ) {
+                if(args.length == 3 && args[0].equals("INSC")) {
                     currentNode = "node " + args[1] + " " + args[2];
                     dir.nodes.put(currentNode);
                     System.out.println("Node " + args[1] + ":" + args[2] + " registered.");

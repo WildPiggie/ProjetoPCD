@@ -22,8 +22,7 @@ public class Directory {
                 System.out.println("Waiting for nodes...");
                 while (true) {
                     Socket socket = ss.accept();
-                    new DealWithRequestsDir(socket, this);
-                    System.out.println("New node connection established with: " + socket.getInetAddress().getHostAddress() + ":" + socket.getLocalPort());
+                    new DealWithRequestsDir(socket, this).start();
                 }
             } finally {
                 ss.close();
@@ -34,7 +33,10 @@ public class Directory {
     }
 
     public static void main(String[] args) {
-        if(args.length != 1) throw new IllegalArgumentException("Invalid arguments!");
+        if(args.length != 1)
+            throw new IllegalArgumentException("Invalid arguments!");
+        if(parseInt(args[0]) < 0)
+            throw new IllegalArgumentException("Invalid port number!");
 
         new Directory(parseInt(args[0]));
     }

@@ -23,8 +23,8 @@ public class ErrorDetectionThread extends Thread {
             try {
                 sleep(1);
             } catch (InterruptedException e) {
-                //interrupt(); Necessario para garantir que sai do loop quando e interrompido?
                 System.err.println("Error detection thread interrupted while sleeping.");
+                return;
             }
 
             if (!cb.isParityOk() && bl.lock(i)) {

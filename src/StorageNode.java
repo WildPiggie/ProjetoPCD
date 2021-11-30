@@ -54,7 +54,6 @@ public class StorageNode {
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
             out.println(message);
-
         } catch (UnknownHostException e) {
             System.err.println("Error while establishing the connection to the directory.");
             System.err.println("Couldn't register to directory. Ending.");
@@ -271,6 +270,9 @@ public class StorageNode {
     public static void main(String[] args) {
         if (args.length < 3 || args.length > 4)
             throw new IllegalArgumentException("Invalid arguments!");
+        if(parseInt(args[1]) < 0 || parseInt(args[2]) < 0)
+            throw new IllegalArgumentException("Invalid port number!");
+
         StorageNode storageNode = (args.length == 4) ? new StorageNode(args[0], parseInt(args[1]), parseInt(args[2]), args[3]) :
                 new StorageNode(args[0], parseInt(args[1]), parseInt(args[2]), "");
     }

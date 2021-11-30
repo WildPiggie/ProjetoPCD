@@ -45,23 +45,19 @@ Quando recebemos os 2 bytes para realizar a correção de erros podemos assumir 
 como de paridade? Se não, como devemos fazer?
 Na deteção so ver se ta null ou não null independentemente se foram as threads que deram countdown - DONE
 
+Na lista sincronizada, o lock, em caso de exceção, pode não ser fechado? Devemos colocar o catch dentro da estrutura?
+Na synchronized list preferivel a usar wait e notifyall? Indiferente -> usar synchronized
+
+Lançar exceções ou serr? ko
+
+Lock e unlock nos sitios certos???????????????????? ErrorDetectionThread -> sim
+
+Fazer verificação do porto no storagenode??????? Limites de numeros de portos -> negativos
+
 
 
 Dúvidas:
 
-Na lista sincronizada, o lock, em caso de exceção, pode não ser fechado? Devemos colocar o catch dentro da estrutura?
-
 ErrorDetectionThread: Necessario colocar o interrupt na excecao para garantir que sai do loop quando e interrompido?
 
 Criar classe abstrata para "unir" a ErrorCorrectionThread e a ByteBlockRequesterThread -> pode complicar mas o stor n sabe se é boa ideia
-
-Lançar exceções ou syserr?
-
-Lock e unlock nos sitios certos????????????????????
-
-Na synchronized list preferivel a usar wait e notifyall?
-
-Fazer verificação do porto no storagenode????????????????????????????
-
-
-Ver a cena do diretorio com o nó
