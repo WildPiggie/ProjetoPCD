@@ -236,7 +236,7 @@ public class StorageNode {
                 System.out.println("Waiting for clients...");
                 while (true) {
                     Socket socket = ss.accept(); // tanto para cliente GUI como para ByteBlockRequesterThreads
-                    System.out.println("New client connection established with: " + socket.getInetAddress().getHostAddress() + ":" + socket.getLocalPort()); // ver o port
+                    System.out.println("New client connection established.");
                     new DealWithRequestsNode(socket, this).start();
                 }
             } finally {
