@@ -19,9 +19,10 @@ public class Directory {
         try {
             ServerSocket ss = new ServerSocket(port);
             try {
-                System.out.println("Waiting for nodes...");
+                System.out.println("Directory launched. \nWaiting for nodes...");
                 while (true) {
                     Socket socket = ss.accept();
+                    System.out.println("New connection established with..."); // meter algo aqui
                     new DealWithRequestsDir(socket, this).start();
                 }
             } finally {

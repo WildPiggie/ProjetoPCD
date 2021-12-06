@@ -28,7 +28,7 @@ public class ErrorDetectionThread extends Thread {
             }
 
             if (!cb.isParityOk() && bl.lock(i)) {
-                System.err.println("Error detected in byte " + i + ".");
+                System.err.println("Error detected in byte " + i + ": " + cb);
                 storageNode.errorCorrection(i);
                 bl.unlock(i);
             }

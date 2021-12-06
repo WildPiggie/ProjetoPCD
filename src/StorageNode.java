@@ -37,7 +37,7 @@ public class StorageNode {
         registerInDirectory();
         getData();
         startErrorDetection(); // entra em loop
-        new ListenerThread(this).start();
+        new ErrorInjectionThread(this).start();
         startAcceptingClients();
     }
 
@@ -78,6 +78,7 @@ public class StorageNode {
      * Uploads data from existing file.
      */
     private void getDataFromFile(File file) {
+        System.out.println("Obtaining data from file...");
         try {
             byte[] fileContents = Files.readAllBytes(file.toPath());
             for (int i = 0; i < DATALENGTH; i++)
@@ -120,7 +121,7 @@ public class StorageNode {
                 bbrt.join(); //isto
             }
         } catch (InterruptedException e) {
-            System.err.println("StorageNode: Interrupted while joining the ByteBlockRequesterThreads.");
+            System.err.println("Interrupted while joining the ByteBlockRequesterThreads.");
         }
         System.out.println("Data successfully obtained from nodes.");
     }
@@ -153,7 +154,7 @@ public class StorageNode {
     }
 
     /**
-     * Detects errors in bytes position through position+length.
+     * Detects errors in bytes position through position+length. Used in Client queries.
      *
      * @param position
      * @param length
@@ -162,7 +163,7 @@ public class StorageNode {
         for (int i = position; i < position + length; i++) {
             CloudByte cb = data[i];
             if (!cb.isParityOk()) {
-                System.err.println("Error detected in byte " + i + ".");
+                System.err.println("Error detected in byte " + i + ": " + cb);
                 errorCorrection(i);
             }
         }
@@ -186,6 +187,11 @@ public class StorageNode {
         ByteBlockRequest bbr = new ByteBlockRequest(index, 1);
         int numOfNodes = nodes.size();
 
+        if(numOfNodes < 2) {
+            System.err.println("Correction couldn't be done due to insufficient number of nodes.");
+            return;
+        }
+
         ErrorCorrectionThread[] ectArray = new ErrorCorrectionThread[numOfNodes];
         for (int i = 0; i < numOfNodes; i++) {
             String[] args = nodes.get(i).split(" ");
@@ -197,7 +203,7 @@ public class StorageNode {
         try {
             cdl.await();
         } catch (InterruptedException e) {
-            System.err.println("StorageNode: Interrupted while awaiting the ErrorCorrectionThreads.");
+            System.err.println("Interrupted while awaiting the ErrorCorrectionThreads.");
         }
 
         CloudByte[] cbs = new CloudByte[2];
@@ -210,10 +216,10 @@ public class StorageNode {
         }
 
         if(!cbs[0].equals(cbs[1]))
-            System.err.println("StorageNode: Couldn't correct the detected error.");
+            System.err.println("Couldn't correct the detected error.");
         else {
             setEllement(index, cbs[0]);
-            System.out.println("Byte " + index + " was successfully corrected.");
+            System.out.println("Error corrected in byte " + index + ": " + cbs[0]);
         }
 
     }
@@ -230,7 +236,7 @@ public class StorageNode {
                 System.out.println("Waiting for clients...");
                 while (true) {
                     Socket socket = ss.accept(); // tanto para cliente GUI como para ByteBlockRequesterThreads
-                    System.out.println("New client connection established with: " + socket.getInetAddress().getHostAddress() + ":" + socket.getLocalPort());
+                    System.out.println("New client connection established with: " + socket.getInetAddress().getHostAddress() + ":" + socket.getLocalPort()); // ver o port
                     new DealWithRequestsNode(socket, this).start();
                 }
             } finally {

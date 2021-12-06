@@ -7,11 +7,11 @@ import static java.lang.Integer.parseInt;
  * Valid commands include:
  * ERROR x : Where x is the target byte to be corrupted
  */
-public class ListenerThread extends Thread {
+public class ErrorInjectionThread extends Thread {
 
     private StorageNode node;
 
-    public ListenerThread(StorageNode node) {
+    public ErrorInjectionThread(StorageNode node) {
         this.node = node;
     }
 
