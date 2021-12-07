@@ -22,7 +22,7 @@ public class Directory {
                 System.out.println("Directory launched. \nWaiting for nodes...");
                 while (true) {
                     Socket socket = ss.accept();
-                    System.out.println("New connection established with..."); // meter algo aqui
+                    System.out.println("New connection established.");
                     new DealWithRequestsDir(socket, this).start();
                 }
             } finally {
