@@ -55,13 +55,15 @@ public class StorageNode {
 
             out.println(message);
         } catch (UnknownHostException e) {
-            System.err.println("Error while establishing the connection to the directory.");
+            /*System.err.println("Error while establishing the connection to the directory.");
             System.err.println("Couldn't register to directory. Ending.");
-            System.exit(1);
+            System.exit(1);*/
+            throw new RuntimeException("Error while establishing the connection to the directory.\nCouldn't register to directory");
         } catch (IOException e) {
-            System.err.println("Error while creating the socket to the directory.");
+            /*System.err.println("Error while creating the socket to the directory.");
             System.err.println("Couldn't register to directory. Ending.");
-            System.exit(1);
+            System.exit(1);*/
+            throw new RuntimeException("Error while creating the socket to the directory.\nCouldn't register to directory.");
         }
         System.out.println("Successfully registered in the directory.");
     }
@@ -100,8 +102,9 @@ public class StorageNode {
         try {
             nodes = getNodes();
         } catch (IOException e) {
-            System.err.println("Couldn't acquire nodes to obtain data. Ending.");
-            System.exit(1);
+            /*System.err.println("Couldn't acquire nodes to obtain data. Ending.");
+            System.exit(1);//runTimeException*/
+            throw new RuntimeException("Couldn't acquire nodes to obtain data.");
         }
         SynchronizedList<ByteBlockRequest> list = new SynchronizedList();
         for (int i = 0; i < DATALENGTH; i += DEFAULTBLOCKLENGTH)
@@ -118,10 +121,11 @@ public class StorageNode {
         }
         try {
             for (ByteBlockRequesterThread bbrt : bbrtArray) {
-                bbrt.join(); //isto
+                bbrt.join();
             }
         } catch (InterruptedException e) {
-            System.err.println("Interrupted while joining the ByteBlockRequesterThreads.");
+            //System.err.println("Interrupted while joining the ByteBlockRequesterThreads.");
+            throw new RuntimeException("Interrupted while joining the ByteBlockRequesterThreads.");
         }
         System.out.println("Data successfully obtained from nodes.");
     }
@@ -180,17 +184,14 @@ public class StorageNode {
         try {
             nodes = getNodes();
         } catch (IOException e) {
-            System.err.println("Couldn't acquire nodes to correct detected errors.");
-            return;
+            throw new RuntimeException("Couldn't acquire nodes to correct detected errors.");
         }
         CountDownLatch cdl = new CountDownLatch(2);
         ByteBlockRequest bbr = new ByteBlockRequest(index, 1);
         int numOfNodes = nodes.size();
 
-        if(numOfNodes < 2) {
-            System.err.println("Correction couldn't be done due to insufficient number of nodes.");
-            return;
-        }
+        if(numOfNodes < 2)
+            throw new RuntimeException("Correction couldn't be done due to insufficient number of nodes.");
 
         ErrorCorrectionThread[] ectArray = new ErrorCorrectionThread[numOfNodes];
         for (int i = 0; i < numOfNodes; i++) {
@@ -203,7 +204,8 @@ public class StorageNode {
         try {
             cdl.await();
         } catch (InterruptedException e) {
-            System.err.println("Interrupted while awaiting the ErrorCorrectionThreads.");
+            //System.err.println("Interrupted while awaiting the ErrorCorrectionThreads.");
+            throw new RuntimeException("Interrupted while awaiting the ErrorCorrectionThreads.");
         }
 
         CloudByte[] cbs = new CloudByte[2];
@@ -216,7 +218,7 @@ public class StorageNode {
         }
 
         if(!cbs[0].equals(cbs[1]))
-            System.err.println("Couldn't correct the detected error.");
+            throw new RuntimeException("Couldn't correct the detected error.");
         else {
             setElement(index, cbs[0]);
             System.out.println("Error corrected in byte " + index + ": " + cbs[0]);
@@ -243,7 +245,8 @@ public class StorageNode {
                 ss.close();
             }
         } catch (IOException e) {
-            System.err.println("Error while opening the server socket.");
+            //System.err.println("Error while opening the server socket.");
+            throw new RuntimeException("Error while opening the server socket.");
         }
     }
 

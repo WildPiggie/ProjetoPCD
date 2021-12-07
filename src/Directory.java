@@ -29,7 +29,7 @@ public class Directory {
                 ss.close();
             }
         } catch (IOException e) {
-            System.err.println("Error while opening the server socket.");
+            throw new RuntimeException("An error occurred while opening the server socket.");
         }
     }
 

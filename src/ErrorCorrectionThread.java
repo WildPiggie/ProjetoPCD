@@ -21,30 +21,44 @@ public class ErrorCorrectionThread extends Thread {
         this.node = node;
         this.cdl = cdl;
         this.bbr = bbr;
-        try {
-            socket = new Socket(ip, port);
-            out = new ObjectOutputStream(socket.getOutputStream());
-            in = new ObjectInputStream(socket.getInputStream());
-        } catch (IOException e) {
-            System.err.println("ByteBlockRequesterThread: Error while connecting to node.");
-        }
-    }
-
-    public CloudByte getReceivedByte(){
-        return receivedByte;
     }
 
     @Override
     public void run() {
         try {
+            createSocket();
+        } catch (IOException e) {
+            System.err.println("Error while connecting to node.");
+            return;
+        }
+        obtainByte();
+    }
+
+    private void createSocket() throws IOException {
+        socket = new Socket(ip, port);
+        out = new ObjectOutputStream(socket.getOutputStream());
+        in = new ObjectInputStream(socket.getInputStream());
+    }
+
+    /**
+     * uhgfyx
+     */
+    private void obtainByte() {
+        try {
             out.writeObject(bbr);
             CloudByte[] cb = (CloudByte[]) in.readObject();
             receivedByte = cb[0];
         } catch (IOException e) {
-            System.err.println("ErrorCorrectionThread: Error while sending ByteBlockRequest.");
+            System.err.println("Error while sending or receiving ByteBlockRequest.");
+            return;
         } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+            System.err.println("Error while receiving ByteBlockRequest.");
+            return;
         }
         cdl.countDown();
+    }
+
+    public CloudByte getReceivedByte(){
+        return receivedByte;
     }
 }

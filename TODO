@@ -1,16 +1,20 @@
+Help a girl out would ya? Lançar exceções.
+
 Na classe ByteLocker explicar o seu funcionamento.
 
-Correção de erros: Encontrar uma forma melhor de confirmar que há duas respostas iguais
-
-Organizar em packages as classes.
+Stor Ruben:
+    Correção de erros: Encontrar uma forma melhor de confirmar que há duas respostas iguais.
+    O stor Luis disse q systemexit iis no goddo ent lançamos exceções. Sooooo?
 
 Como centrar verticalmente as coisas no flowlayout, grelha etc. - podemos tentar aquele do norte e centro
 
-Quando recebemos os 2 bytes para realizar a correção de erros podemos assumir que estão iguais quanto ao nível de conteudo
-como de paridade? Se não, como devemos fazer? Temos que verificar com o equals E verificar se ambos não estão corruptos?
+Subdividir metodos ginormes.
 
-Dúvidas:
+Organizar em packages as classes.
 
-ErrorDetectionThread: Necessario colocar o interrupt na excecao para garantir que sai do loop quando e interrompido?
+
+
+
+
 
 Criar classe abstrata para "unir" a ErrorCorrectionThread e a ByteBlockRequesterThread -> pode complicar mas o stor n sabe se é boa ideia
