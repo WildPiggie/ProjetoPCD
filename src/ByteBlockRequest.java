@@ -1,5 +1,11 @@
 import java.io.Serializable;
 
+/**
+ * Class that represents a request for CloudBytes.
+ *
+ * @author Olga Silva & Samuel Correia
+ */
+
 public class ByteBlockRequest implements Serializable {
 
     private int startIndex;

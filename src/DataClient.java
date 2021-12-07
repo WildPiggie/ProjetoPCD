@@ -126,6 +126,6 @@ public class DataClient {
         if(parseInt(args[1]) < 0)
             throw new IllegalArgumentException("Invalid port number!");
 
-        DataClient dt = new DataClient(args[0], parseInt(args[1]));
+        new DataClient(args[0], parseInt(args[1]));
     }
 }

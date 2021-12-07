@@ -1,17 +1,19 @@
-import com.sun.jdi.request.StepRequest;
-
 import java.io.*;
 import java.net.Socket;
 
+/**
+ * Thread that handles registrations and queries done to the directory.
+ *
+ * @author Olga Silva & Samuel Correia
+ */
+
 public class DealWithRequestsDir extends Thread {
-    private BufferedReader in;
-    private PrintWriter out;
-    private Socket socket;
-    private Directory dir;
+    private final BufferedReader in;
+    private final PrintWriter out;
+    private final Directory dir;
     private String currentNode;
 
     public DealWithRequestsDir(Socket socket, Directory dir) throws IOException {
-        this.socket = socket;
         this.dir = dir;
         currentNode = null;
         in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
@@ -19,7 +21,7 @@ public class DealWithRequestsDir extends Thread {
     }
 
     private void serve() throws ClassNotFoundException, IOException {
-        while (true) {
+        while (!isInterrupted()) {
             String msg = in.readLine();
             if(msg.equals("nodes")) {
                 for(String node : dir.nodes)

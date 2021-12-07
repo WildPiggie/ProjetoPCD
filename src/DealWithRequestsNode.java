@@ -20,7 +20,7 @@ public class DealWithRequestsNode extends Thread {
     }
 
     private void serve() throws ClassNotFoundException, IOException {
-        while (true) {
+        while(!isInterrupted()) {
             ByteBlockRequest bbr = (ByteBlockRequest) in.readObject();
 
             int startIndex = bbr.getStartIndex();

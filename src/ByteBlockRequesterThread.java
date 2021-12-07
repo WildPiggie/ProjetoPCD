@@ -1,30 +1,37 @@
 import java.io.*;
 import java.net.Socket;
 
+/**
+ * Thread used to handle a ByteBlockRequest retrieved from a shared list. It takes the ByteBlockRequest from the list,
+ * sends it to its corresponding node and receives the corresponding block of CloudBytes.
+ * Used when data is obtained through other nodes.
+ *
+ * @author Olga Silva & Samuel Correia
+ */
+
 public class ByteBlockRequesterThread extends Thread {
 
-    private String ip;
-    private int port;
-    private Socket socket;
-    private ObjectInputStream in;
-    private ObjectOutputStream out;
-    private SynchronizedList<ByteBlockRequest> list;
-    private StorageNode node;
+    private final String ip;
+    private final int port;
+    private final ObjectInputStream in;
+    private final ObjectOutputStream out;
+    private final SynchronizedList<ByteBlockRequest> list;
+    private final StorageNode node;
     private int counter = 0;
 
 
-    public ByteBlockRequesterThread(SynchronizedList list, String ip, int port, StorageNode node) {
+    public ByteBlockRequesterThread(SynchronizedList<ByteBlockRequest> list, String ip, int port, StorageNode node) {
         this.list = list;
         this.ip = ip;
         this.port = port;
         this.node = node;
 
         try {
-            socket = new Socket(ip, port);
+            Socket socket = new Socket(ip, port);
             out = new ObjectOutputStream(socket.getOutputStream());
             in = new ObjectInputStream(socket.getInputStream());
         } catch (IOException e) {
-            System.err.println("ByteBlockRequesterThread: Error while connecting to node.");
+            throw new RuntimeException("ByteBlockRequesterThread: Error while connecting to node.");
         }
     }
 
@@ -41,9 +48,11 @@ public class ByteBlockRequesterThread extends Thread {
                     node.setElement(bbr.getStartIndex() + i, cb[i]);
 
             } catch (IOException e) {
-                System.err.println("ByteBlockRequesterThread: Error while sending ByteBlockRequest.");
+                System.err.println("Error while sending or receiving ByteBlockRequest.");
+                break;
             } catch (ClassNotFoundException e) {
-                e.printStackTrace();
+                System.err.println("Error while receiving ByteBlockRequest.");
+                break;
             }
             counter++;
         }
