@@ -37,8 +37,8 @@ public class ByteBlockRequesterThread extends Thread {
                 out.writeObject(bbr);
 
                 CloudByte[] cb = (CloudByte[]) in.readObject();
-
-                node.setDataWithArray(cb, bbr.getStartIndex(), bbr.getLength());
+                for (int i = 0; i < cb.length; i++)
+                    node.setElement(bbr.getStartIndex() + i, cb[i]);
 
             } catch (IOException e) {
                 System.err.println("ByteBlockRequesterThread: Error while sending ByteBlockRequest.");

@@ -218,7 +218,7 @@ public class StorageNode {
         if(!cbs[0].equals(cbs[1]))
             System.err.println("Couldn't correct the detected error.");
         else {
-            setEllement(index, cbs[0]);
+            setElement(index, cbs[0]);
             System.out.println("Error corrected in byte " + index + ": " + cbs[0]);
         }
 
@@ -257,19 +257,7 @@ public class StorageNode {
         return data[index];
     }
 
-    /**
-     * Sets a CloudByte at the given index.
-     *
-     * @param array
-     * @param startIndex
-     * @param length
-     */
-    synchronized void setDataWithArray(CloudByte[] array, int startIndex, int length) {
-        for (int i = 0; i < length; i++)
-            data[startIndex + i] = array[i];
-    }
-
-    synchronized void setEllement(int index, CloudByte cb) {
+    synchronized void setElement(int index, CloudByte cb) {
         data[index] = cb;
     }
 

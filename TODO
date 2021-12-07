@@ -1,60 +1,13 @@
---- - Fazer o nosso próprio CDL.
+Na classe ByteLocker explicar o seu funcionamento.
 
-Para resolver a concorrencia das threads de deteção/correção de erros:
-Isto também se devia aplicar na escrita e talvez leitura do array.
+Correção de erros: Encontrar uma forma melhor de confirmar que há duas respostas iguais
 
-Podemos ter uma lock por thread de error correction, que indica a posição a ser tratada.
-Teriamos que ser nós a criar acho eu.
-Podia ser uma estrutura que tem um array/lista de inteiros com tamanho o numero de threads,
-em que o indice indica o thread (se for um array), e o valor o indice a ser trabalhado.
-Para acionar seria lock.lock(pos) ou lock.lock(thread index, pos)
-mas acho que não precisa de ser identificada qual a thread a trabalhar na posição.
-Assim bloqueava se a posição estiver ocupada, também podemos fazer algo para ele passar à frente.
-(Se for uma lista pode ser mais versátil, e ser usada na escrita inicial do ficheiro por exemplo getDataFromNodes)
-
-Também existem transações mas não acho que é a melhor opção: Processamento perdido.
-
-...
-
-A correção de erros pode ser realizada por uma única thread que recebe os nós a que se deve connectar acho eu.
-Por outro lado como estamos a pcd talvez querem que seja tudo mais concorrente.
-De qualquer forma reutilizar o byteblockrequester thread seria bom, mas como dizem que se deve usar a cdl:
-Ou mudamos a bbrt para usar cdl ou criamos outra thread que nem precisa de receber uma lista de pedidos, recebe apenas um.
-
-Dúvidas respondidas:
-array de cloudByte OUUUUU outra estrutura de dados? Hashmap
-Usar algo para associar a cada posição se: Está a ser lido ou alterado. (Bloqueante)
-
-Só dps de ter sido feita a correção é que query é apresentada ao cliente? Manda informação sem (hehe)
-
-Qdo tentamos pesquisar por 100000 de length demora IMENSO tempo... na realidade nnc chega a vir .. why? A gui parece estar a atrasar bué
-
-Temos que implementar nós a countdownlatch ou podemos usar uma do java? Temos de fazer o nosso próprio CDL
-
-Ao colocar as threads em classes à parte, há problema de alguns metodos do node serem apenas package private? metodos !
+Organizar em packages as classes.
 
 Como centrar verticalmente as coisas no flowlayout, grelha etc. - podemos tentar aquele do norte e centro
 
-bbrt.join(); vs usar cdl. O cdl não será mais eficiente? meh n ia ser util overall
-
-Temos de fazer o nosso próprio CDL? Sim
-
-Podemos usar o reentrant lock ou temos que criar nós a estrutura? sim podemos usar
-
 Quando recebemos os 2 bytes para realizar a correção de erros podemos assumir que estão iguais quanto ao nível de conteudo
-como de paridade? Se não, como devemos fazer?
-Na deteção so ver se ta null ou não null independentemente se foram as threads que deram countdown - DONE
-
-Na lista sincronizada, o lock, em caso de exceção, pode não ser fechado? Devemos colocar o catch dentro da estrutura?
-Na synchronized list preferivel a usar wait e notifyall? Indiferente -> usar synchronized
-
-Lançar exceções ou serr? ko
-
-Lock e unlock nos sitios certos???????????????????? ErrorDetectionThread -> sim
-
-Fazer verificação do porto no storagenode??????? Limites de numeros de portos -> negativos
-
-
+como de paridade? Se não, como devemos fazer? Temos que verificar com o equals E verificar se ambos não estão corruptos?
 
 Dúvidas:
 
