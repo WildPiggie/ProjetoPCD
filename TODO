@@ -1,3 +1,8 @@
+StorageNode:
+Guardar todas as threads associadas, para poder interrompe-las na runTimeException.
+
+---
+
 Como centrar verticalmente as coisas no flowlayout, grelha etc. - podemos tentar aquele do norte e centro
 
 Subdividir metodos ginormes.

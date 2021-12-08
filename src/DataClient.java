@@ -48,7 +48,7 @@ public class DataClient {
             out = new ObjectOutputStream(socket.getOutputStream());
             in = new ObjectInputStream(socket.getInputStream());
         } catch (IOException e) {
-            throw new RuntimeException("Error connecting to node while creating socket and/or streams. Ending.");
+            throw new RuntimeException("Error connecting to node while creating socket and/or streams.");
         }
     }
 
