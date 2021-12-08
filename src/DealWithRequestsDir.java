@@ -24,19 +24,27 @@ public class DealWithRequestsDir extends Thread {
         while (!isInterrupted()) {
             String msg = in.readLine();
             if(msg.equals("nodes")) {
-                for(String node : dir.nodes)
-                    out.println(node);
-                out.println("end");
+                sendRegisteredNodes();
             } else {
                 String[] args = msg.split(" ");
                 if(args.length == 3 && args[0].equals("INSC")) {
-                    currentNode = "node " + args[1] + " " + args[2];
-                    dir.nodes.put(currentNode);
-                    System.out.println("Node " + args[1] + ":" + args[2] + " registered.");
+                    registerNode(args);
                 } else
                     System.err.println("Invalid command!");
             }
         }
+    }
+
+    private void sendRegisteredNodes() {
+        for(String node : dir.nodes)
+            out.println(node);
+        out.println("end");
+    }
+
+    private void registerNode(String[] args) {
+        currentNode = "node " + args[1] + " " + args[2];
+        dir.nodes.put(currentNode);
+        System.out.println("Node " + args[1] + ":" + args[2] + " registered.");
     }
 
     @Override

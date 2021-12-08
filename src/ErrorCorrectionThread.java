@@ -1,49 +1,33 @@
 import java.io.*;
 import java.net.Socket;
 
+/**
+ * Thread used to handle the correction of a corrupted CloudByte.
+ * It searches for the correct CloudByte on its corresponding node and stores it in a variable
+ * to later be used in correction.
+ *
+ * @author Olga Silva & Samuel Correia
+ */
+
 public class ErrorCorrectionThread extends Thread {
 
-    private String ip;
-    private int port;
-    private StorageNode node;
-    private CountDownLatch cdl;
-    private ByteBlockRequest bbr;
+    private final CountDownLatch cdl;
+    private final ByteBlockRequest bbr;
     private CloudByte receivedByte;
-
-    private Socket socket;
-    private ObjectInputStream in;
-    private ObjectOutputStream out;
+    private final ObjectInputStream in;
+    private final ObjectOutputStream out;
 
 
-    public ErrorCorrectionThread(String ip, int port, StorageNode node, CountDownLatch cdl, ByteBlockRequest bbr) {
-        this.ip = ip;
-        this.port = port;
-        this.node = node;
+    public ErrorCorrectionThread(String ip, int port, CountDownLatch cdl, ByteBlockRequest bbr) throws IOException {
         this.cdl = cdl;
         this.bbr = bbr;
-    }
-
-    @Override
-    public void run() {
-        try {
-            createSocket();
-        } catch (IOException e) {
-            System.err.println("Error while connecting to node.");
-            return;
-        }
-        obtainByte();
-    }
-
-    private void createSocket() throws IOException {
-        socket = new Socket(ip, port);
+        Socket socket = new Socket(ip, port);
         out = new ObjectOutputStream(socket.getOutputStream());
         in = new ObjectInputStream(socket.getInputStream());
     }
 
-    /**
-     * uhgfyx
-     */
-    private void obtainByte() {
+    @Override
+    public void run() {
         try {
             out.writeObject(bbr);
             CloudByte[] cb = (CloudByte[]) in.readObject();

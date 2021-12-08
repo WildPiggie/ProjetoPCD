@@ -1,7 +1,7 @@
 import java.util.ArrayList;
 
 /**
- *
+ * Holds a list containing indexes of all CloudBytes currently being corrected, of a given node.
  * Used to avoid that two or more threads try to correct the same CloudByte of a certain StorageNode.
  *
  * @author Olga Silva & Samuel Correia
@@ -9,7 +9,7 @@ import java.util.ArrayList;
 
 public class ByteLocker {
 
-    private final ArrayList lockedByte = new ArrayList<Integer>();
+    private final ArrayList<Integer> lockedByte = new ArrayList<>();
 
     public synchronized boolean lock(int index) {
         if(lockedByte.contains(index))

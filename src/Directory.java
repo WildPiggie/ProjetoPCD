@@ -4,9 +4,17 @@ import java.net.Socket;
 
 import static java.lang.Integer.parseInt;
 
+/**
+ * Class used to manage node registration and queries about other nodes.
+ * Nodes can use the directory to register themselves to the directory database
+ * and discover other nodes that are also registered.
+ *
+ * @author Olga Silva & Samuel Correia
+ */
+
 public class Directory {
 
-    private int port;
+    private final int port;
     public SynchronizedList<String> nodes;
 
     public Directory(int port) {
@@ -18,15 +26,15 @@ public class Directory {
     private void startAcceptingClients() {
         try {
             ServerSocket ss = new ServerSocket(port);
-            try {
-                System.out.println("Directory launched. \nWaiting for nodes...");
-                while (true) {
+            System.out.println("Directory launched. \nWaiting for nodes...");
+            while(!ss.isClosed()) {
+                try {
                     Socket socket = ss.accept();
-                    System.out.println("New connection established.");
                     new DealWithRequestsDir(socket, this).start();
+                    System.out.println("New connection established.");
+                } catch (IOException e){
+                    System.err.println("An error occurred while establishing the connection to the node.");
                 }
-            } finally {
-                ss.close();
             }
         } catch (IOException e) {
             throw new RuntimeException("An error occurred while opening the server socket.");
@@ -38,7 +46,6 @@ public class Directory {
             throw new IllegalArgumentException("Invalid arguments!");
         if(parseInt(args[0]) < 0)
             throw new IllegalArgumentException("Invalid port number!");
-
         new Directory(parseInt(args[0]));
     }
 }

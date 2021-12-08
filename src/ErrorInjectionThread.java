@@ -3,13 +3,16 @@ import java.util.Scanner;
 import static java.lang.Integer.parseInt;
 
 /**
- * Console reader. Checks for valid commands inputted into the console.
- * Valid commands include:
- * ERROR x : Where x is the target byte to be corrupted
+ * Used to corrupt CloudBytes specified by the client through the console.
+ * Example: ERROR "index"
+ * Where "index" is the numeric index of the CloudByte to be corrupted.
+ *
+ * @author Olga Silva & Samuel Correia
  */
+
 public class ErrorInjectionThread extends Thread {
 
-    private StorageNode node;
+    private final StorageNode node;
 
     public ErrorInjectionThread(StorageNode node) {
         this.node = node;
@@ -18,14 +21,13 @@ public class ErrorInjectionThread extends Thread {
     @Override
     public void run() {
         Scanner sc = new Scanner(System.in);
-        while (true) { //isto pode precisar de um try catch (espera por coisas serem inseridas na consola)
-            //talvez fazer try catch do sc.nextLine();
+        while (!isInterrupted()) {
             String command = sc.nextLine();
             String[] args = command.split(" ");
             if (args.length == 2) {
                 try {
                     int position = parseInt(args[1]);
-                    if (args[0].equals("ERROR") && position >= 0 && position < node.DATALENGTH) {
+                    if (args[0].equals("ERROR") && position >= 0 && position < StorageNode.DATA_LENGTH) {
                         CloudByte cb = node.getElementFromData(position);
                         cb.makeByteCorrupt();
                         System.out.println("Error injected in position " + position + " : " + cb);

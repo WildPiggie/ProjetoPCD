@@ -1,3 +1,9 @@
+/**
+ * A simple implementation of the count-down latch mechanism.
+ *
+ * @author Olga Silva & Samuel Correia
+ */
+
 public class CountDownLatch {
 
     private int count;

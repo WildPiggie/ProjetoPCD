@@ -1,11 +1,3 @@
-Help a girl out would ya? Lançar exceções.
-
-Na classe ByteLocker explicar o seu funcionamento.
-
-Stor Ruben:
-    Correção de erros: Encontrar uma forma melhor de confirmar que há duas respostas iguais.
-    O stor Luis disse q systemexit iis no goddo ent lançamos exceções. Sooooo?
-
 Como centrar verticalmente as coisas no flowlayout, grelha etc. - podemos tentar aquele do norte e centro
 
 Subdividir metodos ginormes.
@@ -16,5 +8,11 @@ Organizar em packages as classes.
 
 
 
-
 Criar classe abstrata para "unir" a ErrorCorrectionThread e a ByteBlockRequesterThread -> pode complicar mas o stor n sabe se é boa ideia
+
+
+--- Final Touches
+
+Testar export no eclipse.
+
+Garantir que o to-do e outras coisas desnecessarias não são transferidas.

@@ -10,6 +10,7 @@ import static java.lang.Integer.parseInt;
  *
  * @author Olga Silva & Samuel Correia
  */
+
 public class StorageNode {
 
     private final String directoryIp;
@@ -17,17 +18,14 @@ public class StorageNode {
     private String nodeIp;
     private final int nodePort;
     private final String fileName;
-    private Socket socket;
     private BufferedReader in;
     private PrintWriter out;
-    //colocadas a final, a não ser que futuramente seja necessário alterar nalguma parte do código
 
-    public static final int DATALENGTH = 1000000;
-    public static final int DEFAULTBLOCKLENGTH = 100;
+    public static final int DATA_LENGTH = 1000000;
+    public static final int DEFAULT_BLOCK_LENGTH = 100;
 
-    private CloudByte[] data = new CloudByte[DATALENGTH];
-    private ErrorDetectionThread[] errorDetectionThreads;
-    private static final int NUMERRORDETECTIONTHREADS = 2;
+    private final CloudByte[] data = new CloudByte[DATA_LENGTH];
+    private static final int NUM_ERROR_DETECTION_THREADS = 2;
 
     public StorageNode(String ipAddress, int directoryPort, int requestPort, String fileName) {
         this.directoryIp = ipAddress;
@@ -36,17 +34,22 @@ public class StorageNode {
         this.fileName = fileName;
         registerInDirectory();
         getData();
-        startErrorDetection(); // entra em loop
+        startErrorDetection();
         new ErrorInjectionThread(this).start();
         startAcceptingClients();
     }
 
-    /**
-     * Registers the StorageNode in the Directory.
-     */
+    synchronized CloudByte getElementFromData(int index) {
+        return data[index];
+    }
+
+    synchronized void setElement(int index, CloudByte cb) {
+        data[index] = cb;
+    }
+
     private void registerInDirectory() {
         try {
-            socket = new Socket(directoryIp, directoryPort);
+            Socket socket = new Socket(directoryIp, directoryPort);
             nodeIp = socket.getLocalAddress().getHostAddress();
             String message = "INSC " + nodeIp + " " + nodePort;
 
@@ -55,14 +58,8 @@ public class StorageNode {
 
             out.println(message);
         } catch (UnknownHostException e) {
-            /*System.err.println("Error while establishing the connection to the directory.");
-            System.err.println("Couldn't register to directory. Ending.");
-            System.exit(1);*/
             throw new RuntimeException("Error while establishing the connection to the directory.\nCouldn't register to directory");
         } catch (IOException e) {
-            /*System.err.println("Error while creating the socket to the directory.");
-            System.err.println("Couldn't register to directory. Ending.");
-            System.exit(1);*/
             throw new RuntimeException("Error while creating the socket to the directory.\nCouldn't register to directory.");
         }
         System.out.println("Successfully registered in the directory.");
@@ -76,14 +73,11 @@ public class StorageNode {
             getDataFromNodes();
     }
 
-    /**
-     * Uploads data from existing file.
-     */
     private void getDataFromFile(File file) {
         System.out.println("Obtaining data from file...");
         try {
             byte[] fileContents = Files.readAllBytes(file.toPath());
-            for (int i = 0; i < DATALENGTH; i++)
+            for (int i = 0; i < DATA_LENGTH; i++)
                 data[i] = new CloudByte(fileContents[i]);
             System.out.println("Data uploaded from file.");
         } catch (IOException e) {
@@ -93,22 +87,17 @@ public class StorageNode {
         }
     }
 
-    /**
-     * Downloads data from other StorageNodes
-     */
     private void getDataFromNodes() {
         System.out.println("Obtaining data from nodes...");
-        LinkedList<String> nodes = new LinkedList();
+        LinkedList<String> nodes;
         try {
             nodes = getNodes();
         } catch (IOException e) {
-            /*System.err.println("Couldn't acquire nodes to obtain data. Ending.");
-            System.exit(1);//runTimeException*/
             throw new RuntimeException("Couldn't acquire nodes to obtain data.");
         }
-        SynchronizedList<ByteBlockRequest> list = new SynchronizedList();
-        for (int i = 0; i < DATALENGTH; i += DEFAULTBLOCKLENGTH)
-            list.put(new ByteBlockRequest(i, DEFAULTBLOCKLENGTH));
+        SynchronizedList<ByteBlockRequest> list = new SynchronizedList<>();
+        for (int i = 0; i < DATA_LENGTH; i += DEFAULT_BLOCK_LENGTH)
+            list.put(new ByteBlockRequest(i, DEFAULT_BLOCK_LENGTH));
 
         int numOfNodes = nodes.size();
         ByteBlockRequesterThread[] bbrtArray = new ByteBlockRequesterThread[numOfNodes];
@@ -124,7 +113,6 @@ public class StorageNode {
                 bbrt.join();
             }
         } catch (InterruptedException e) {
-            //System.err.println("Interrupted while joining the ByteBlockRequesterThreads.");
             throw new RuntimeException("Interrupted while joining the ByteBlockRequesterThreads.");
         }
         System.out.println("Data successfully obtained from nodes.");
@@ -132,36 +120,30 @@ public class StorageNode {
 
     private LinkedList<String> getNodes() throws IOException {
         out.println("nodes");
-        LinkedList<String> nodes = new LinkedList();
+        LinkedList<String> nodes = new LinkedList<>();
         while (true) {
             String line = in.readLine();
             if (line.equals("end"))
                 break;
             nodes.add(line);
         }
-        nodes.removeIf(s -> s.equals("node " + nodeIp + " " + nodePort)); //remove-se a si próprio
+        nodes.removeIf(s -> s.equals("node " + nodeIp + " " + nodePort));
         System.out.println("Nodes to connect in order to obtain data: " + nodes);
         return nodes;
     }
 
-    /**
-     * Starts error detection threads.
-     */
     private void startErrorDetection() {
-        errorDetectionThreads = new ErrorDetectionThread[NUMERRORDETECTIONTHREADS];
+        ErrorDetectionThread[] errorDetectionThreads = new ErrorDetectionThread[NUM_ERROR_DETECTION_THREADS];
         ByteLocker bl = new ByteLocker();
-        for (int i = 0; i < NUMERRORDETECTIONTHREADS; i++) {
-            int startIndex = (DATALENGTH / NUMERRORDETECTIONTHREADS) * i;
+        for (int i = 0; i < NUM_ERROR_DETECTION_THREADS; i++) {
+            int startIndex = (DATA_LENGTH / NUM_ERROR_DETECTION_THREADS) * i;
             errorDetectionThreads[i] = new ErrorDetectionThread(this, startIndex, bl);
             errorDetectionThreads[i].start();
         }
     }
 
     /**
-     * Detects errors in bytes position through position+length. Used in Client queries.
-     *
-     * @param position
-     * @param length
+     * Detects errors in bytes at "position" through "position"+"length". Used in client queries.
      */
     void errorDetection(int position, int length) {
         for (int i = position; i < position + length; i++) {
@@ -173,13 +155,8 @@ public class StorageNode {
         }
     }
 
-    /**
-     * Corrects error in byte given its position.
-     *
-     * @param index
-     */
     void errorCorrection(int index) {
-        LinkedList<String> nodes = new LinkedList();
+        LinkedList<String> nodes;
 
         try {
             nodes = getNodes();
@@ -198,13 +175,16 @@ public class StorageNode {
             String[] args = nodes.get(i).split(" ");
             String ip = args[1];
             int port = parseInt(args[2]);
-            ectArray[i] = new ErrorCorrectionThread(ip, port, this, cdl, bbr);
-            ectArray[i].start();
+            try {
+                ectArray[i] = new ErrorCorrectionThread(ip, port, cdl, bbr);
+                ectArray[i].start();
+            } catch (IOException e) {
+                System.err.println("An ErrorCorrectionThread failed while connecting to its corresponding node.");
+            }
         }
         try {
             cdl.await();
         } catch (InterruptedException e) {
-            //System.err.println("Interrupted while awaiting the ErrorCorrectionThreads.");
             throw new RuntimeException("Interrupted while awaiting the ErrorCorrectionThreads.");
         }
 
@@ -226,51 +206,34 @@ public class StorageNode {
 
     }
 
-    /**
-     * Accepts queries from clients.
-     *
-     * @throws IOException
-     */
     private void startAcceptingClients() {
         try {
             ServerSocket ss = new ServerSocket(nodePort);
-            try {
-                System.out.println("Waiting for clients...");
-                while (true) {
-                    Socket socket = ss.accept(); // tanto para cliente GUI como para ByteBlockRequesterThreads
-                    System.out.println("New client connection established.");
+            System.out.println("Waiting for clients...");
+            while(!ss.isClosed()) {
+                try {
+                    Socket socket = ss.accept();
                     new DealWithRequestsNode(socket, this).start();
+                    System.out.println("New connection established.");
+                } catch (IOException e){
+                    System.err.println("An error occurred while establishing the connection to client/node.");
                 }
-            } finally {
-                ss.close();
             }
         } catch (IOException e) {
-            //System.err.println("Error while opening the server socket.");
-            throw new RuntimeException("Error while opening the server socket.");
+            throw new RuntimeException("An error occurred while opening the server socket.");
         }
-    }
-
-    /**
-     * Gets CloudByte given its index.
-     *
-     * @param index
-     * @return CloudByte at the given index.
-     */
-    synchronized CloudByte getElementFromData(int index) {
-        return data[index];
-    }
-
-    synchronized void setElement(int index, CloudByte cb) {
-        data[index] = cb;
     }
 
     public static void main(String[] args) {
         if (args.length < 3 || args.length > 4)
             throw new IllegalArgumentException("Invalid arguments!");
-        if(parseInt(args[1]) < 0 || parseInt(args[2]) < 0)
+        int dPort = parseInt(args[1]);
+        int nPort = parseInt(args[2]);
+        if(dPort < 0 || nPort < 0)
             throw new IllegalArgumentException("Invalid port number!");
-
-        StorageNode storageNode = (args.length == 4) ? new StorageNode(args[0], parseInt(args[1]), parseInt(args[2]), args[3]) :
-                new StorageNode(args[0], parseInt(args[1]), parseInt(args[2]), "");
+        if(args.length == 4)
+            new StorageNode(args[0], dPort, nPort, args[3]);
+        else
+            new StorageNode(args[0], dPort, nPort, "");
     }
 }

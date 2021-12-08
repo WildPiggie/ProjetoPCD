@@ -4,16 +4,17 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 
 /**
- * Nested Class to deal with client queries and node queries.
+ * Thread that handles client and node queries.
+ *
+ * @author Olga Silva & Samuel Correia
  */
+
 public class DealWithRequestsNode extends Thread {
-    private ObjectInputStream in;
-    private ObjectOutputStream out;
-    private Socket socket;
-    private StorageNode node;
+    private final ObjectInputStream in;
+    private final ObjectOutputStream out;
+    private final StorageNode node;
 
     public DealWithRequestsNode(Socket socket, StorageNode node) throws IOException {
-        this.socket = socket;
         this.node = node;
         in = new ObjectInputStream(socket.getInputStream());
         out = new ObjectOutputStream(socket.getOutputStream());
