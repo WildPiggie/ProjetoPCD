@@ -1,3 +1,5 @@
+package DataStructures;
+
 /**
  * A simple implementation of the count-down latch mechanism.
  *

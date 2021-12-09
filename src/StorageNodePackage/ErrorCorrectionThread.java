@@ -1,9 +1,15 @@
+package StorageNodePackage;
+
+import DataStructures.ByteBlockRequest;
+import DataStructures.CloudByte;
+import DataStructures.CountDownLatch;
+
 import java.io.*;
 import java.net.Socket;
 
 /**
- * Thread used to handle the correction of a corrupted CloudByte.
- * It searches for the correct CloudByte on its corresponding node and stores it in a variable
+ * Thread used to handle the correction of a corrupted DataStructures.CloudByte.
+ * It searches for the correct DataStructures.CloudByte on its corresponding node and stores it in a variable
  * to later be used in correction.
  *
  * @author Olga Silva & Samuel Correia
@@ -33,10 +39,10 @@ public class ErrorCorrectionThread extends Thread {
             CloudByte[] cb = (CloudByte[]) in.readObject();
             receivedByte = cb[0];
         } catch (IOException e) {
-            System.err.println("Error while sending or receiving ByteBlockRequest.");
+            System.err.println("Error while sending or receiving DataStructures.ByteBlockRequest.");
             return;
         } catch (ClassNotFoundException e) {
-            System.err.println("Error while receiving ByteBlockRequest.");
+            System.err.println("Error while receiving DataStructures.ByteBlockRequest.");
             return;
         }
         cdl.countDown();

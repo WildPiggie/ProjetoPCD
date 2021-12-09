@@ -1,3 +1,8 @@
+package StorageNodePackage;
+
+import DataStructures.ByteLocker;
+import DataStructures.CloudByte;
+
 /**
  * Used by the nodes in order to check for corrupted CloudBytes in their data.
  * Sequentially looks through all CloudBytes of a given node, detecting any errors that may exist.

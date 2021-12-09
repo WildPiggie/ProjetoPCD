@@ -1,3 +1,7 @@
+package StorageNodePackage;
+
+import DataStructures.CloudByte;
+
 import java.util.Scanner;
 
 import static java.lang.Integer.parseInt;
@@ -5,7 +9,7 @@ import static java.lang.Integer.parseInt;
 /**
  * Used to corrupt CloudBytes specified by the client through the console.
  * Example: ERROR "index"
- * Where "index" is the numeric index of the CloudByte to be corrupted.
+ * Where "index" is the numeric index of the DataStructures.CloudByte to be corrupted.
  *
  * @author Olga Silva & Samuel Correia
  */

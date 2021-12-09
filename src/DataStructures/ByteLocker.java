@@ -1,8 +1,10 @@
+package DataStructures;
+
 import java.util.ArrayList;
 
 /**
  * Holds a list containing indexes of all CloudBytes currently being corrected, of a given node.
- * Used to avoid that two or more threads try to correct the same CloudByte of a certain StorageNode.
+ * Used to avoid that two or more threads try to correct the same DataStructures.CloudByte of a certain StorageNodePackage.StorageNode.
  *
  * @author Olga Silva & Samuel Correia
  */

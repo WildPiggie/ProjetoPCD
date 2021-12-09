@@ -1,3 +1,7 @@
+package DirectoryPackage;
+
+import DataStructures.SynchronizedList;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -26,7 +30,7 @@ public class Directory {
     private void startAcceptingClients() {
         try {
             ServerSocket ss = new ServerSocket(port);
-            System.out.println("Directory launched. \nWaiting for nodes...");
+            System.out.println("DirectoryPackage.Directory launched. \nWaiting for nodes...");
             while(!ss.isClosed()) {
                 try {
                     Socket socket = ss.accept();

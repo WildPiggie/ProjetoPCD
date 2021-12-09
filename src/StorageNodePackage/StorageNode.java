@@ -1,3 +1,7 @@
+package StorageNodePackage;
+
+import DataStructures.*;
+
 import java.io.*;
 import java.net.*;
 import java.nio.file.Files;
@@ -157,18 +161,18 @@ public class StorageNode {
 
     void errorCorrection(int index) {
         LinkedList<String> nodes;
-
         try {
             nodes = getNodes();
         } catch (IOException e) {
             throw new RuntimeException("Couldn't acquire nodes to correct detected errors.");
         }
+
         CountDownLatch cdl = new CountDownLatch(2);
         ByteBlockRequest bbr = new ByteBlockRequest(index, 1);
-        int numOfNodes = nodes.size();
 
+        int numOfNodes = nodes.size();
         if(numOfNodes < 2)
-            throw new RuntimeException("Correction couldn't be done due to insufficient number of nodes.");
+            throw new RuntimeException("Correction couldn't be established due to insufficient number of nodes.");
 
         ErrorCorrectionThread[] ectArray = new ErrorCorrectionThread[numOfNodes];
         for (int i = 0; i < numOfNodes; i++) {
@@ -179,7 +183,7 @@ public class StorageNode {
                 ectArray[i] = new ErrorCorrectionThread(ip, port, cdl, bbr);
                 ectArray[i].start();
             } catch (IOException e) {
-                System.err.println("An ErrorCorrectionThread failed while connecting to its corresponding node.");
+                System.err.println("An StorageNodePackage.ErrorCorrectionThread failed while connecting to its corresponding node.");
             }
         }
         try {
@@ -187,7 +191,10 @@ public class StorageNode {
         } catch (InterruptedException e) {
             throw new RuntimeException("Interrupted while awaiting the ErrorCorrectionThreads.");
         }
+        correctByteWithOtherNodes(index, ectArray);
+    }
 
+    private void correctByteWithOtherNodes(int index, ErrorCorrectionThread[] ectArray) {
         CloudByte[] cbs = new CloudByte[2];
         int i=0;
         for(ErrorCorrectionThread ect : ectArray) {
@@ -203,7 +210,6 @@ public class StorageNode {
             setElement(index, cbs[0]);
             System.out.println("Error corrected in byte " + index + ": " + cbs[0]);
         }
-
     }
 
     private void startAcceptingClients() {

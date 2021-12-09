@@ -1,6 +1,6 @@
-import java.io.Serializable;
+package DataStructures;
 
-import javax.management.RuntimeErrorException;
+import java.io.Serializable;
 
 /**
  * @author luismota
@@ -11,7 +11,7 @@ public class CloudByte implements Serializable {
 
     public CloudByte(byte value) {
         if (value > 127 || value < 0)
-            throw new IllegalArgumentException("Invalid value for CloudByte");
+            throw new IllegalArgumentException("Invalid value for DataStructures.CloudByte");
         if (countOnes(value) % 2 == 0)
             this.value = value;
         else
@@ -69,7 +69,7 @@ public class CloudByte implements Serializable {
 
     @Override
     public String toString() {
-        return "CloudByte [value=" + getValue() + "]" + (!isParityOk() ? "->ERROR" : "");
+        return "DataStructures.CloudByte [value=" + getValue() + "]" + (!isParityOk() ? "->ERROR" : "");
     }
 
     private static byte countOnes(byte value) {

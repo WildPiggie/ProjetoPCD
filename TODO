@@ -1,21 +1,3 @@
-StorageNode:
-Guardar todas as threads associadas, para poder interrompe-las na runTimeException.
-
----
-
-Como centrar verticalmente as coisas no flowlayout, grelha etc. - podemos tentar aquele do norte e centro
-
-Subdividir metodos ginormes.
-
-Organizar em packages as classes.
-
-
-
-
-
-Criar classe abstrata para "unir" a ErrorCorrectionThread e a ByteBlockRequesterThread -> pode complicar mas o stor n sabe se é boa ideia
-
-
 --- Final Touches
 
 Testar export no eclipse.

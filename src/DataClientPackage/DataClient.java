@@ -1,3 +1,9 @@
+package DataClientPackage;
+
+import DataStructures.ByteBlockRequest;
+import DataStructures.CloudByte;
+import StorageNodePackage.StorageNode;
+
 import javax.swing.*;
 import java.awt.*;
 import java.io.*;
@@ -31,7 +37,7 @@ public class DataClient {
 
         connectToNode();
 
-        frame = new JFrame("Client");
+        frame = new JFrame("DataClientPackage");
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
         addFrameContent();
@@ -53,10 +59,10 @@ public class DataClient {
     }
 
     private void addFrameContent() {
-        frame.setLayout(new GridLayout(2, 1));
+        frame.setLayout(new BorderLayout());
 
         JPanel panel = new JPanel();
-        panel.setLayout(new FlowLayout(FlowLayout.CENTER, 0, 25));
+        panel.setLayout(new FlowLayout(FlowLayout.CENTER, 10, 25));
 
         panel.add((new JLabel("Position:")));
 
@@ -100,14 +106,16 @@ public class DataClient {
         });
 
         panel.add(search);
-        frame.add(panel);
+        frame.add(panel, BorderLayout.NORTH);
+
         answer = new JTextArea("Answers will appear here...");
         answer.setEditable(false);
         answer.setLineWrap(true);
         JScrollPane scroll = new JScrollPane(answer);
         scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         scroll.setSize(700, 100);
-        frame.add(scroll, BorderLayout.SOUTH);
+
+        frame.add(scroll, BorderLayout.CENTER);
     }
 
     public static void main(String[] args) {

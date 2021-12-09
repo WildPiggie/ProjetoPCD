@@ -1,8 +1,14 @@
+package StorageNodePackage;
+
+import DataStructures.ByteBlockRequest;
+import DataStructures.CloudByte;
+import DataStructures.SynchronizedList;
+
 import java.io.*;
 import java.net.Socket;
 
 /**
- * Thread used to handle a ByteBlockRequest retrieved from a shared list. It takes the ByteBlockRequest from the list,
+ * Thread used to handle a DataStructures.ByteBlockRequest retrieved from a shared list. It takes the DataStructures.ByteBlockRequest from the list,
  * sends it to its corresponding node and receives the corresponding block of CloudBytes.
  * Used when data is obtained through other nodes.
  *
@@ -31,7 +37,7 @@ public class ByteBlockRequesterThread extends Thread {
             out = new ObjectOutputStream(socket.getOutputStream());
             in = new ObjectInputStream(socket.getInputStream());
         } catch (IOException e) {
-            throw new RuntimeException("ByteBlockRequesterThread: Error while connecting to node.");
+            throw new RuntimeException("StorageNodePackage.ByteBlockRequesterThread: Error while connecting to node.");
         }
     }
 
@@ -48,10 +54,10 @@ public class ByteBlockRequesterThread extends Thread {
                     node.setElement(bbr.getStartIndex() + i, cb[i]);
 
             } catch (IOException e) {
-                System.err.println("Error while sending or receiving ByteBlockRequest.");
+                System.err.println("Error while sending or receiving DataStructures.ByteBlockRequest.");
                 break;
             } catch (ClassNotFoundException e) {
-                System.err.println("Error while receiving ByteBlockRequest.");
+                System.err.println("Error while receiving DataStructures.ByteBlockRequest.");
                 break;
             }
             counter++;
