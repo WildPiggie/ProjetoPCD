@@ -11,7 +11,7 @@ public class CloudByte implements Serializable {
 
     public CloudByte(byte value) {
         if (value > 127 || value < 0)
-            throw new IllegalArgumentException("Invalid value for DataStructures.CloudByte");
+            throw new IllegalArgumentException("Invalid value for CloudByte");
         if (countOnes(value) % 2 == 0)
             this.value = value;
         else
@@ -69,7 +69,7 @@ public class CloudByte implements Serializable {
 
     @Override
     public String toString() {
-        return "DataStructures.CloudByte [value=" + getValue() + "]" + (!isParityOk() ? "->ERROR" : "");
+        return "CloudByte [value=" + getValue() + "]" + (!isParityOk() ? "->ERROR" : "");
     }
 
     private static byte countOnes(byte value) {

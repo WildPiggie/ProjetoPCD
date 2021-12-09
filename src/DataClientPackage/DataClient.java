@@ -37,7 +37,7 @@ public class DataClient {
 
         connectToNode();
 
-        frame = new JFrame("DataClientPackage");
+        frame = new JFrame("DataClient");
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
         addFrameContent();

@@ -183,7 +183,7 @@ public class StorageNode {
                 ectArray[i] = new ErrorCorrectionThread(ip, port, cdl, bbr);
                 ectArray[i].start();
             } catch (IOException e) {
-                System.err.println("An StorageNodePackage.ErrorCorrectionThread failed while connecting to its corresponding node.");
+                System.err.println("An ErrorCorrectionThread failed while connecting to its corresponding node.");
             }
         }
         try {

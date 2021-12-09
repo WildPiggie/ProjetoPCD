@@ -54,7 +54,7 @@ public class DealWithRequestsDir extends Thread {
         try {
             serve();
         } catch (IOException e) {
-            System.err.println("StorageNodePackage.StorageNode disconnected. Removing " + currentNode + " from directory database.");
+            System.err.println("StorageNode disconnected. Removing " + currentNode + " from directory database.");
             dir.nodes.remove(currentNode);
         } catch (ClassNotFoundException e) {
             System.err.println("Error while reading request.");

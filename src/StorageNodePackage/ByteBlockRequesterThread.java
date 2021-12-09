@@ -37,7 +37,7 @@ public class ByteBlockRequesterThread extends Thread {
             out = new ObjectOutputStream(socket.getOutputStream());
             in = new ObjectInputStream(socket.getInputStream());
         } catch (IOException e) {
-            throw new RuntimeException("StorageNodePackage.ByteBlockRequesterThread: Error while connecting to node.");
+            throw new RuntimeException("ByteBlockRequesterThread: Error while connecting to node.");
         }
     }
 
