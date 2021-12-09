@@ -20,8 +20,6 @@ public class ByteLocker {
     }
 
     public synchronized void unlock(int index) {
-        System.out.println(lockedByte);
         lockedByte.remove((Integer)index);
-        System.out.println(lockedByte);
     }
 }
